@@ -184,6 +184,7 @@ AC_SUBST(CURSES)
 
 AC_CONFIG_FILES([
 Makefile
+include/Makefile
 src/Makefile
 man/Makefile
 ])
