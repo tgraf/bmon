@@ -1,0 +1,235 @@
+.TH "bmon" "8" "" "Bandwidth Monitor" "bmon"
+.SH "NAME"
+bmon \- bandwidth monitor and rate estimator
+.SH "SYNOPSIS"
+.B bmon
+[\fB\-\-show\-all\fR]
+[\fB\-\-use\-si\fR]
+[\fB\-\-input\fR=\fIMODULE\fR]
+[\fB\-\-output\fR=\fIMODULE\fR]
+[OPTIONS...]
+
+.SH "DESCRIPTION"
+bmon is a monitoring and debugging tool to capture networking related
+statistics and prepare them visually in a human friendly way. It
+features various output methods including an interactive curses user
+interface and a programmable text output for scripting.
+
+.SH "OPTIONS"
+.PP
+\fB -h\fR, \fB\-\-help\fR
+.RS 4
+Prints a short help text and exits\&.
+.RE
+.PP
+\fB -V\fR, \fB\-\-version\fR
+.RS 4
+Prints the versioning identifier and exits\&.
+.RE
+.PP
+\fB -i\fR, \fB\-\-input=\fRMODULE[:OPTIONS][,MODULE...]
+.RS 4
+Set list of input modules to load and use. Multiple modules can be used
+in parallel. bmon automatically loads a useful and working input module
+by default. See INPUT MODULES for more details.
+.RE
+.PP
+\fB -o\fR, \fB\-\-ouptut\fRMODULE[:OPTIONS][,MODULE...]
+.RS 4
+Set list of output modules to load and use. Multiple modules can be used
+in parallel. By default, bmon will use the curses output mode, if that is
+not available due to an incompatible console it will fall back to a simple
+text mode. See OUTPUT MODULES for more details.
+.RE
+.PP
+\fB -U\fR, \fB\-\-use\-si\fR
+.RS 4
+Use SI unit system instead of 1KB = 1'024 bytes.
+.RE
+.PP
+\fB -f\fR, \fB\-\-configfile=\fRFILE
+.RS 4
+Set alternative path to configuration file.
+.RE
+.PP
+\fB -p\fR, \fB\-\-policy=\fRPOLICY
+.RS 4
+Set policy defining which network interfaces to display. See
+INTERFACE SELECTION for more details.
+.RE
+.PP
+\fB -a\fR, \fB\-\-show\-all=\fR
+.RS 4
+Display all interfaces, even interface that are administratively down.
+.RE
+.PP
+\fB -r\fR, \fB\-\-read\-interval=\fRFLOAT
+.RS 4
+Set interval in seconds in which input modules read statistics from their
+source. The default is 1.0 seconds.
+.RE
+.PP
+\fB -R\fR, \fB\-\-rate\-interval=\fRFLOAT
+.RS 4
+Set interval in seconds in which the rate per counter is calculated.
+The default is 1.0 seconds.
+.RE
+.PP
+\fB -L\fR, \fB\-\-lifetime=\fRFLOAT
+.RS 4
+Set lifetime of an element in seconds before it is no longer displayed
+without receiving any statistical updates. The default is 30 seconds.
+.RE
+
+.SH "INPUT MODULES"
+.PP
+Input modules provide statistical data about elements. Each element consists
+of attributes which represents a counter, a rate, or a percentage. Elements
+may carry additional child elements to represent a hierarchy. Each element is
+assigned to a group defined by the input module. Input modules are polled in
+the frequence of the configured read interval.
+.PP
+The following input modules are available:
+.TP
+\fBnetlink\fR
+Uses the Netlink protocol to collect interface and traffic control statistics
+from the kernel. This is the default input module.
+
+.TP
+\fBproc\fR
+Reads interface statistics from the /proc/net/dev file. This is considered a
+legacy interface and provided for backwards compatibily reasons. This is a
+fallback module if the Netlink interface is not available.
+
+.TP
+\fBdummy\fR
+Programmable input module for debugging and testing purposes.
+
+.TP
+\fBnull\fR
+No data collected.
+
+.PP
+To receive additional information about a module, run the module with the
+"help" option set like this:
+
+.PP
+.RS 4
+bmon \-i netlink:help
+.RE
+
+See MODULE CONFIGURATION for more details.
+
+.SH "OUTPUT MODULES"
+.PP
+Output modules display or export the statistical data collected by input
+modules. Multiple output modules can be run at the same time. bmon will
+not prevent possible conflicts such as multiple output modules writing to
+the console.
+.PP
+The following output modules exist:
+
+.TP
+\fBcurses\fR
+Interactive curses based text user interface providing real time rate
+estimations and a graphical representatio nof each attribute. Press '?'
+to display the quick reference guide. This is the default output mode.
+
+.TP
+\fBascii\fR
+Simple programmable text output intended for human consumption. Capable
+of printing list of interfaces, detailed counters and graphs to the
+console. This is the default fallback output mode if curses is not
+available.
+
+.TP
+\fBformat\fR
+Fully scriptable output mode inteded for consumption by other programs.
+See the module help text for additional information.
+
+.TP
+\fBnull\fR
+Disable output.
+
+.PP
+To receive additional information about a module, run the module with the
+"help" option set like this:
+
+.PP
+.RS 4
+bmon \-o curses:help
+.RE
+
+See MODULE CONFIGURATION for more details.
+
+.SH "MODULE CONFIGURATION"
+.PP
+The syntax to configure modules is as follows:
+.PP
+.RS 4
+ARGUMENT ::= mod1[:OPTS][,mod2[:OPTS]...]
+.br
+OPTS     ::= OPTION[;OPTION...]
+.br
+OPTION   ::= option[=value]
+.RE
+
+.PP
+Run the module with option "help" to receive the list of options for each
+module:
+
+.PP
+.RS 4
+bmon -i module:help
+.RE
+
+.SH "INTERFACE SELECTION"
+.PP
+The following syntax is used to define the interface selection policy:
+.PP
+.RS 4
+SELECTION ::= NAME[,NAME[,...]]
+.br
+NAME      ::= [!]interface
+.RE
+
+.PP
+The interface name may contain the character '*' which will act as a wildcard
+and represents any number of any character type, e.g. eth*, h*0, ...
+
+.TP
+Examples:
+.RS
+.NF
+lo,eth0,eth1
+.FI
+.RE
+.RS
+.NF
+eth*,!eth0
+.FI
+.RE
+
+.SH "EXAMPLES"
+.PP
+To run bmon in curses mode monitoring the interfaces eth0
+and eth1:
+.PP
+.RS 4
+\fBbmon \-p eth0,eth1 \-o curses\fP
+.RE
+
+.SH "FILES"
+/etc/bmon.conf
+.br
+$HOME/.bmonrc
+
+.SH "SEE ALSO"
+.PP
+\fBip\fR(8),
+\fBnetstat\fR(8),
+\fBifconfig\fR(8),
+\fBnetlink\fR(7),
+
+.SH "AUTHOR"
+Thomas Graf <tgraf@suug.ch>
