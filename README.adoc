@@ -17,6 +17,13 @@ provided via:
 
   bmon --help
 
+== Screenshots
+
+image:https://github.com/tgraf/bmon/raw/gh-pages/images/shot1.png[
+"Screenshot 1", width=512]
+image:https://github.com/tgraf/bmon/raw/gh-pages/images/shot2.png[
+"Screenshot 2", width=512]
+
 == Copyright
 
   Copyright (c) 2001-2013 Thomas Graf <tgraf@suug.ch>
