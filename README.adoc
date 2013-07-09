@@ -1,0 +1,25 @@
+= bmon =
+:license: https://github.com/tgraf/bmon/blob/master/LICENSE
+
+bmon is a monitoring and debugging tool to capture networking related
+statistics and prepare them visually in a human friendly way. It
+features various output methods including an interactive curses user
+interface and a programmable text output for scripting.
+
+== Usage
+
+To run bmon in the default curses mode:
+
+  bmon
+
+There are many other options available and full help is
+provided via:
+
+  bmon --help
+
+== Copyright
+
+  Copyright (c) 2001-2013 Thomas Graf <tgraf@suug.ch>
+  Copyright (c) 2013 Red Hat, Inc.
+
+Please see the {license}[LICENSE] file for details.
