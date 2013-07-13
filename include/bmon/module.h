@@ -29,8 +29,11 @@
 #include <bmon/bmon.h>
 #include <bmon/conf.h>
 
-#define BMON_MODULE_ENABLED		1
-#define BMON_MODULE_DEFAULT		2
+#define BMON_MODULE_ENABLED		(1 << 0) /* Enabled */
+#define BMON_MODULE_DEFAULT		(1 << 1) /* Suitable as default */
+#define BMON_MODULE_AUTO		(1 << 2) /* Auto enable */
+
+struct bmon_subsys;
 
 struct bmon_module
 {
@@ -48,6 +51,7 @@ struct bmon_module
 
 	int			m_flags;
 	struct list_head	m_list;
+	struct bmon_subsys     *m_subsys;
 };
 
 struct bmon_subsys
@@ -65,7 +69,7 @@ extern void		module_foreach_run_enabled_pre(struct bmon_subsys *);
 extern void		module_foreach_run_enabled(struct bmon_subsys *);
 extern void		module_foreach_run_enabled_post(struct bmon_subsys *);
 
-extern void		module_register(struct bmon_subsys *, struct bmon_module *);
+extern int		module_register(struct bmon_subsys *, struct bmon_module *);
 extern int		module_set(struct bmon_subsys *, const char *);
 
 extern void		module_init(void);

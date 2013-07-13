@@ -92,7 +92,7 @@ static int module_configure(struct bmon_module *m, module_conf_t *cfg)
 {
 	DBG("Configuring module %s", m->m_name);
 
-	if (m->m_parse_opt) {
+	if (m->m_parse_opt && cfg) {
 		tv_t *tv;
 
 		list_for_each_entry(tv, &cfg->m_attrs, tv_list)
@@ -102,12 +102,28 @@ static int module_configure(struct bmon_module *m, module_conf_t *cfg)
 	if (m->m_probe && !m->m_probe())
 		return -EINVAL;
 
+	m->m_flags |= BMON_MODULE_ENABLED;
+	m->m_subsys->s_nmod++;
+
 	return 0;
 }
 
-void module_register(struct bmon_subsys *ss, struct bmon_module *m)
+int module_register(struct bmon_subsys *ss, struct bmon_module *m)
 {
+	if (m->m_subsys)
+		return -EBUSY;
+
 	list_add_tail(&m->m_list, &ss->s_mod_list);
+	m->m_subsys = ss;
+}
+
+static void __auto_load(struct bmon_module *m)
+{
+	if ((m->m_flags & BMON_MODULE_AUTO) &&
+	    !(m->m_flags & BMON_MODULE_ENABLED)) {
+		if (module_configure(m, NULL) == 0)
+			DBG("Auto-enabled module %s", m->m_name);
+	}
 }
 
 int module_set(struct bmon_subsys *ss, const char *name)
@@ -116,7 +132,6 @@ int module_set(struct bmon_subsys *ss, const char *name)
 	struct list_head *list;
 	LIST_HEAD(tmp_list);
 	module_conf_t *m;
-	int nmod = 0;
 
 	if (!name || !strcasecmp(name, "list")) {
 		module_list(ss, &ss->s_mod_list);
@@ -129,18 +144,16 @@ int module_set(struct bmon_subsys *ss, const char *name)
 		if (!(mod = module_lookup(ss, m->m_name)))
 			quit("Unknown %s module: %s\n", ss->s_name, m->m_name);
 
-		if (module_configure(mod, m) == 0) {
-			DBG("Enabling module %s", mod->m_name);
-			mod->m_flags |= BMON_MODULE_ENABLED;
-			nmod++;
-		}
+		if (module_configure(mod, m) == 0)
+			DBG("Enabled module %s", mod->m_name);
 	}
 
-	if (!nmod)
+	module_foreach(ss, __auto_load);
+
+	if (!ss->s_nmod)
 		quit("No working %s module found\n", ss->s_name);
 
-	DBG("Configured %d modules", nmod);
-	ss->s_nmod = nmod;
+	DBG("Configured modules");
 
 	return 0;
 }
