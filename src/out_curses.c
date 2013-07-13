@@ -599,7 +599,10 @@ static void draw_element(struct element_group *g, struct element *e,
 			addch(' ');
 		} else if (e == current_element) {
 			apply_layout(LAYOUT_SELECTED);
-			printw("->");
+			addch(' ');
+			attron(A_BOLD);
+			addch(ACS_RARROW);
+			attroff(A_BOLD);
 			apply_layout(LAYOUT_LIST);
 		} else if (*line == offset + list_length - 1 &&
 		           *line < (list_req - 1)) {
