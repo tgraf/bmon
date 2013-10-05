@@ -313,7 +313,7 @@ static void print_help(void)
 	"           :rxusage       RX usage in percent\n" \
 	"           :txusage       TX usage in percent)\n" \
 	"           :id            ID of element\n" \
-	"           :haschilds     Indicate if element has childs (0|1)\n" \
+	"           :haschilds     Indicate if element has children (0|1)\n" \
 	"    attr:rx:<name>        RX counter of attribute <name>\n" \
 	"        :tx:<name>        TX counter of attribute <name>\n" \
 	"        :rxrate:<name>    RX rate of attribute <name>\n" \
