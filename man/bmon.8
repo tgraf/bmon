@@ -17,24 +17,24 @@ interface and a programmable text output for scripting.
 
 .SH "OPTIONS"
 .PP
-\fB -h\fR, \fB\-\-help\fR
+\fB \-h\fR, \fB\-\-help\fR
 .RS 4
 Prints a short help text and exits\&.
 .RE
 .PP
-\fB -V\fR, \fB\-\-version\fR
+\fB \-V\fR, \fB\-\-version\fR
 .RS 4
 Prints the versioning identifier and exits\&.
 .RE
 .PP
-\fB -i\fR, \fB\-\-input=\fRMODULE[:OPTIONS][,MODULE...]
+\fB \-i\fR, \fB\-\-input=\fRMODULE[:OPTIONS][,MODULE...]
 .RS 4
 Set list of input modules to load and use. Multiple modules can be used
 in parallel. bmon automatically loads a useful and working input module
 by default. See INPUT MODULES for more details.
 .RE
 .PP
-\fB -o\fR, \fB\-\-ouptut\fRMODULE[:OPTIONS][,MODULE...]
+\fB \-o\fR, \fB\-\-ouptut\fRMODULE[:OPTIONS][,MODULE...]
 .RS 4
 Set list of output modules to load and use. Multiple modules can be used
 in parallel. By default, bmon will use the curses output mode, if that is
@@ -42,40 +42,40 @@ not available due to an incompatible console it will fall back to a simple
 text mode. See OUTPUT MODULES for more details.
 .RE
 .PP
-\fB -U\fR, \fB\-\-use\-si\fR
+\fB \-U\fR, \fB\-\-use\-si\fR
 .RS 4
 Use SI unit system instead of 1KB = 1'024 bytes.
 .RE
 .PP
-\fB -f\fR, \fB\-\-configfile=\fRFILE
+\fB \-f\fR, \fB\-\-configfile=\fRFILE
 .RS 4
 Set alternative path to configuration file.
 .RE
 .PP
-\fB -p\fR, \fB\-\-policy=\fRPOLICY
+\fB \-p\fR, \fB\-\-policy=\fRPOLICY
 .RS 4
 Set policy defining which network interfaces to display. See
 INTERFACE SELECTION for more details.
 .RE
 .PP
-\fB -a\fR, \fB\-\-show\-all=\fR
+\fB \-a\fR, \fB\-\-show\-all=\fR
 .RS 4
 Display all interfaces, even interface that are administratively down.
 .RE
 .PP
-\fB -r\fR, \fB\-\-read\-interval=\fRFLOAT
+\fB \-r\fR, \fB\-\-read\-interval=\fRFLOAT
 .RS 4
 Set interval in seconds in which input modules read statistics from their
 source. The default is 1.0 seconds.
 .RE
 .PP
-\fB -R\fR, \fB\-\-rate\-interval=\fRFLOAT
+\fB \-R\fR, \fB\-\-rate\-interval=\fRFLOAT
 .RS 4
 Set interval in seconds in which the rate per counter is calculated.
 The default is 1.0 seconds.
 .RE
 .PP
-\fB -L\fR, \fB\-\-lifetime=\fRFLOAT
+\fB \-L\fR, \fB\-\-lifetime=\fRFLOAT
 .RS 4
 Set lifetime of an element in seconds before it is no longer displayed
 without receiving any statistical updates. The default is 30 seconds.
@@ -180,7 +180,7 @@ module:
 
 .PP
 .RS 4
-bmon -i module:help
+bmon \-i module:help
 .RE
 
 .SH "INTERFACE SELECTION"
