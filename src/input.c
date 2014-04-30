@@ -44,8 +44,10 @@ static void activate_default(void)
 	if (!input_subsys.s_nmod) {
 		struct bmon_module *m;
 
+#ifdef SYS_LINUX
 		if (!input_set("netlink"))
 			return;
+#endif
 
 		if (!input_set("proc"))
 			return;
