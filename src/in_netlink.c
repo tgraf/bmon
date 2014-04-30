@@ -58,7 +58,7 @@ static struct attr_map link_attrs[] = {
 	.name		= "packets",
 	.type		= ATTR_TYPE_COUNTER,
 	.unit		= UNIT_NUMBER,
-	.description	= "Packtes",
+	.description	= "Packets",
 	.rxid		= RTNL_LINK_RX_PACKETS,
 	.txid		= RTNL_LINK_TX_PACKETS,
 },

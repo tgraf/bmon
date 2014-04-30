@@ -57,7 +57,7 @@ static struct attr_map link_attrs[NUM_PROC_VALUE] = {
 	.name		= "packets",
 	.type		= ATTR_TYPE_COUNTER,
 	.unit		= UNIT_NUMBER,
-	.description	= "Packtes",
+	.description	= "Packets",
 },
 {
 	.name		= "errors",

@@ -61,7 +61,7 @@ static struct attr_map link_attrs[NUM_DUMMY_VALUE] = {
 	.name		= "packets",
 	.type		= ATTR_TYPE_COUNTER,
 	.unit		= UNIT_NUMBER,
-	.description	= "Packtes",
+	.description	= "Packets",
 }
 };
 
