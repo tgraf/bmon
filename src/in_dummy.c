@@ -171,7 +171,7 @@ static void print_help(void)
 	"    TX-bytes   := TX-packets * (Rand() %% mtu)\n");
 }
 
-static void dummy_parse_opt(const char *value, const char *type)
+static void dummy_parse_opt(const char *type, const char *value)
 {
 	if (!strcasecmp(type, "rxb") && value)
 		c_rx_b_inc = strtol(value, NULL, 0);
