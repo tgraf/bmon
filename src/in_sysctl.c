@@ -4,6 +4,7 @@
  * $Id: in_sysctl.c 20 2004-10-30 22:46:16Z tgr $
  *
  * Copyright (c) 2001-2004 Thomas Graf <tgraf@suug.ch>
+ * Copyright (c) 2014 Žilvinas Valinskas <zilvinas.valinskas@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -26,9 +27,9 @@
 
 #include <bmon/bmon.h>
 #include <bmon/input.h>
-#include <bmon/intf.h>
 #include <bmon/conf.h>
-#include <bmon/node.h>
+#include <bmon/group.h>
+#include <bmon/element.h>
 #include <bmon/utils.h>
 
 #if defined SYS_BSD
@@ -40,6 +41,101 @@
 #include <net/route.h>
 
 static int c_debug = 0;
+static struct element_group *grp;
+
+enum {
+	SYSCTL_RX_BYTES = 0x100,
+	SYSCTL_TX_BYTES,
+	SYSCTL_RX_PACKETS,
+	SYSCTL_TX_PACKETS,
+	SYSCTL_RX_ERRORS,
+	SYSCTL_TX_ERRORS,
+	SYSCTL_RX_DROPS,
+	SYSCTL_RX_MCAST,
+	SYSCTL_TX_MCAST,
+	SYSCTL_TX_COLLS,
+};
+static struct attr_map link_attrs[] = {
+{
+	.name		= "bytes",
+	.type		= ATTR_TYPE_COUNTER,
+	.unit		= UNIT_BYTE,
+	.rxid		= SYSCTL_RX_BYTES,
+	.txid		= SYSCTL_TX_BYTES,
+	.description	= "Bytes",
+},
+{
+	.name		= "packets",
+	.type		= ATTR_TYPE_COUNTER,
+	.unit		= UNIT_NUMBER,
+	.rxid		= SYSCTL_RX_PACKETS,
+	.txid		= SYSCTL_TX_PACKETS,
+	.description	= "Packets",
+},
+{
+	.name		= "errors",
+	.type		= ATTR_TYPE_COUNTER,
+	.unit		= UNIT_NUMBER,
+	.rxid		= SYSCTL_RX_ERRORS,
+	.txid		= SYSCTL_TX_ERRORS,
+	.description	= "Errors",
+},
+{
+	.name		= "drop",
+	.type		= ATTR_TYPE_COUNTER,
+	.unit		= UNIT_NUMBER,
+	.rxid		= SYSCTL_RX_DROPS,
+	.description	= "Dropped",
+},
+{
+	.name		= "coll",
+	.type		= ATTR_TYPE_COUNTER,
+	.unit		= UNIT_NUMBER,
+	.txid		= SYSCTL_TX_COLLS,
+	.description	= "Collisions",
+},
+{
+	.name		= "mcast",
+	.type		= ATTR_TYPE_COUNTER,
+	.unit		= UNIT_NUMBER,
+	.rxid		= SYSCTL_RX_MCAST,
+	.txid		= SYSCTL_TX_MCAST,
+	.description	= "Multicast",
+}
+};
+
+uint64_t sysctl_get_stats(const struct if_msghdr *ifm, int what)
+{
+	switch(what) {
+	case SYSCTL_RX_BYTES:
+		return ifm->ifm_data.ifi_ibytes;
+	case SYSCTL_TX_BYTES:
+		return ifm->ifm_data.ifi_obytes;
+
+	case SYSCTL_RX_PACKETS:
+		return ifm->ifm_data.ifi_ipackets;
+	case SYSCTL_TX_PACKETS:
+		return ifm->ifm_data.ifi_opackets;
+
+	case SYSCTL_RX_ERRORS:
+		return ifm->ifm_data.ifi_ierrors;
+	case SYSCTL_TX_ERRORS:
+		return ifm->ifm_data.ifi_oerrors;
+
+	case SYSCTL_RX_DROPS:
+		return ifm->ifm_data.ifi_iqdrops;
+
+	case SYSCTL_RX_MCAST:
+		return ifm->ifm_data.ifi_imcasts;
+	case SYSCTL_TX_MCAST:
+		return ifm->ifm_data.ifi_omcasts;
+	case SYSCTL_TX_COLLS:
+		return ifm->ifm_data.ifi_collisions;
+
+	default:
+		return 0;
+	};
+}
 
 static void
 sysctl_read(void)
@@ -52,7 +148,7 @@ sysctl_read(void)
 		quit("sysctl() failed");
 
 	if (c_debug)
-		fprintf(stderr, "sysctl 1-pass n=%d\n", n);
+		fprintf(stderr, "sysctl 1-pass n=%zd\n", n);
 
 	buf = xcalloc(1, n);
 
@@ -60,14 +156,13 @@ sysctl_read(void)
 		quit("sysctl() failed");
 
 	if (c_debug)
-		fprintf(stderr, "sysctl 2-pass n=%d\n", n);
+		fprintf(stderr, "sysctl 2-pass n=%zd\n", n);
 
 	lim = (buf + n);
-
 	for (next = buf; next < lim; ) {
+		struct element *e, *e_parent = NULL;
 		struct if_msghdr *ifm, *nextifm;
 		struct sockaddr_dl *sdl;
-		intf_t *i;
 
 		ifm = (struct if_msghdr *) next;
 		if (ifm->ifm_type != RTM_IFINFO)
@@ -84,34 +179,54 @@ sysctl_read(void)
 
 		sdl = (struct sockaddr_dl *) (ifm + 1);
 
-		if (get_show_only_running() && !(ifm->ifm_flags & IFF_UP))
+		if (!cfg_show_all && !(ifm->ifm_flags & IFF_UP))
 			continue;
 
-		if(sdl->sdl_family != AF_LINK)
+		if (sdl->sdl_family != AF_LINK)
 			continue;
 
 		if (c_debug)
 			fprintf(stderr, "Processing %s\n", sdl->sdl_data);
 
-		i = lookup_intf(get_local_node(), sdl->sdl_data, 0, 0);
-
-		if (NULL == i)
+		sdl->sdl_data[sdl->sdl_nlen] = '\0';
+		e = element_lookup(grp,
+				   sdl->sdl_data, sdl->sdl_index,
+				   e_parent, ELEMENT_CREAT);
+		if (!e)
 			continue;
 
-		i->i_rx_bytes.r_total = ifm->ifm_data.ifi_ibytes;
-		i->i_tx_bytes.r_total = ifm->ifm_data.ifi_obytes;
-		i->i_rx_packets.r_total = ifm->ifm_data.ifi_ipackets;
-		i->i_tx_packets.r_total = ifm->ifm_data.ifi_opackets;
+		if (e->e_flags & ELEMENT_FLAG_CREATED) {
+			if (e->e_parent)
+				e->e_level = e->e_parent->e_level + 1;
 
-		update_attr(i, ERRORS, ifm->ifm_data.ifi_ierrors,
-			ifm->ifm_data.ifi_oerrors, RX_PROVIDED | TX_PROVIDED);
-		update_attr(i, COLLISIONS, 0, ifm->ifm_data.ifi_collisions,
-			TX_PROVIDED);
-		update_attr(i, MULTICAST, ifm->ifm_data.ifi_imcasts, 0, RX_PROVIDED);
-		update_attr(i, DROP, 0, ifm->ifm_data.ifi_iqdrops, TX_PROVIDED);
+			if (element_set_key_attr(e, "bytes", "packets") ||
+			    element_set_usage_attr(e, "bytes"))
+				BUG();
 
-		notify_update(i);
-		increase_lifetime(i, 1);
+			e->e_flags &= ~ELEMENT_FLAG_CREATED;
+		}
+
+		int i;
+		for (i = 0; i < ARRAY_SIZE(link_attrs); i++) {
+			struct attr_map *m = &link_attrs[i];
+			uint64_t rx = 0, tx = 0;
+			int flags = 0;
+
+			if (m->rxid) {
+				rx = sysctl_get_stats(ifm, m->rxid);
+				flags |= UPDATE_FLAG_RX;
+			}
+
+			if (m->txid) {
+				tx = sysctl_get_stats(ifm, m->txid);
+				flags |= UPDATE_FLAG_TX;
+			}
+
+			attr_update(e, m->attrid, rx, tx, flags);
+		}
+
+		element_notify_update(e, NULL);
+		element_lifesign(e, 1);
 	}
 
 	xfree(buf);
@@ -129,16 +244,13 @@ print_help(void)
 }
 
 static void
-sysctl_set_opts(tv_t *attrs)
+sysctl_set_opts(const char* type, const char* value)
 {
-	while (attrs) {
-		if (!strcasecmp(attrs->type, "debug"))
-			c_debug = 1;
-		else if (!strcasecmp(attrs->type, "help")) {
-			print_help();
-			exit(0);
-		}
-		attrs = attrs->next;
+	if (!strcasecmp(type, "debug"))
+		c_debug = 1;
+	else if (!strcasecmp(type, "help")) {
+		print_help();
+		exit(0);
 	}
 }
 
@@ -152,17 +264,30 @@ sysctl_probe(void)
 	return 1;
 }
 
-static struct input_module kstat_ops = {
-	.im_name = "sysctl",
-	.im_read = sysctl_read,
-	.im_set_opts = sysctl_set_opts,
-	.im_probe = sysctl_probe,
+static int sysctl_do_init(void)
+{
+	if (attr_map_load(link_attrs, ARRAY_SIZE(link_attrs)))
+		BUG();
+
+	grp = group_lookup(DEFAULT_GROUP, GROUP_CREATE);
+	if (!grp)
+		BUG();
+
+	return 0;
+}
+
+static struct bmon_module kstat_ops = {
+	.m_name = "sysctl",
+	.m_do = sysctl_read,
+	.m_parse_opt = sysctl_set_opts,
+	.m_probe = sysctl_probe,
+	.m_init = sysctl_do_init,
 };
 
 static void __init
 sysctl_init(void)
 {
-	register_input_module(&kstat_ops);
+	input_register(&kstat_ops);
 }
 
 #endif
