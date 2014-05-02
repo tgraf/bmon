@@ -8,6 +8,14 @@
 #ifndef BMON_LIST_H_
 #define BMON_LIST_H_
 
+#ifdef __APPLE__
+/* Apple systems define these macros in system headers, so we undef
+ * them prior to inclusion of this file */
+#undef LIST_HEAD
+#undef LIST_HEAD_INIT
+#undef INIT_LIST_HEAD
+#endif
+
 struct list_head
 {
 	struct list_head *	next;
