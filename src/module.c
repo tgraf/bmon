@@ -115,6 +115,7 @@ int module_register(struct bmon_subsys *ss, struct bmon_module *m)
 
 	list_add_tail(&m->m_list, &ss->s_mod_list);
 	m->m_subsys = ss;
+	return 0;
 }
 
 static void __auto_load(struct bmon_module *m)
