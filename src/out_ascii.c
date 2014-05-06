@@ -55,7 +55,7 @@ static void print_list(struct element *e)
 {
 	char *rxu1 = "", *txu1 = "", *rxu2 = "", *txu2 = "";
 	double rx1 = 0.0f, tx1 = 0.0f, rx2 = 0.0f, tx2 = 0.0f;
-	int rx1prec, tx1prec, rx2prec, tx2prec;
+	int rx1prec = 0, tx1prec = 0, rx2prec = 0, tx2prec = 0;
 	char pad[IFNAMSIZ + 32];
 	struct attr *a;
 
