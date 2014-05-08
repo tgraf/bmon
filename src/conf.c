@@ -86,6 +86,7 @@ static cfg_opt_t global_opts[] = {
 	CFG_SEC("attr", attr_opts, CFGF_MULTI | CFGF_TITLE),
 	CFG_SEC("history", history_opts, CFGF_MULTI | CFGF_TITLE),
 	CFG_SEC("element", element_opts, CFGF_MULTI | CFGF_TITLE),
+	CFG_END()
 };
 
 float			cfg_read_interval;
