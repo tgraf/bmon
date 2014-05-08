@@ -34,11 +34,7 @@ static LIST_HEAD(units);
 
 static struct list_head *get_flist(struct unit *unit)
 {
-	static struct list_head *cached_list = NULL;
 	int div = UNIT_DEFAULT;
-
-	if (cached_list)
-		return cached_list;
 
 	if (cfg_getbool(cfg, "use_bit"))
 		div = UNIT_BIT;
@@ -46,11 +42,9 @@ static struct list_head *get_flist(struct unit *unit)
 		div = UNIT_SI;
 	
 	if (!list_empty(&unit->u_div[div]))
-		cached_list = &unit->u_div[div];
+		return &unit->u_div[div];
 	else
-		cached_list = &unit->u_div[UNIT_DEFAULT];
-
-	return cached_list;
+		return &unit->u_div[UNIT_DEFAULT];
 }
 
 struct unit *unit_lookup(const char *name)
