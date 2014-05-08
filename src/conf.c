@@ -79,6 +79,7 @@ static cfg_opt_t global_opts[] = {
 	CFG_INT("unit_exp", -1, CFGF_NONE),
 	CFG_INT("sleep_time", 20000UL, CFGF_NONE),
 	CFG_BOOL("use_si", 0, CFGF_NONE),
+	CFG_BOOL("use_bit", 0, CFGF_NONE),
 	CFG_STR("uid", NULL, CFGF_NONE),
 	CFG_STR("gid", NULL, CFGF_NONE),
 	CFG_STR("policy", "", CFGF_NONE),
@@ -360,6 +361,8 @@ static void configfile_read_units(void)
 				add_div(u, UNIT_DEFAULT, variant);
 			else if (!strcasecmp(vtitle, "si"))
 				add_div(u, UNIT_SI, variant);
+			else if (!strcasecmp(vtitle, "bit"))
+				add_div(u, UNIT_BIT, variant);
 			else
 				quit("Unknown unit variant \'%s\'\n", vtitle);
 		}
@@ -459,13 +462,21 @@ static const char default_config[] = \
 " 		div	= { 1, 1000, 1000000, 1000000000, 1000000000000 }" \
 " 		txt	= { \"B\", \"KB\", \"MB\", \"GB\", \"TB\" }" \
 " 	}" \
+" 	variant bit {" \
+" 		div	= { 0.125, 125, 125000, 125000000, 125000000000 }" \
+" 		txt	= { \"b\", \"Kb\", \"Mb\", \"Gb\", \"Tb\" }" \
+" 	}" \
 " }" \
 "unit bit {" \
 " 	variant default {" \
-" 		div	= { 1, 1024, 1048576, 1073741824, 1099511627776}" \
-" 		txt	= { \"b\", \"Kib\", \"Mib\", \"Gib\", \"TiB\" }" \
+" 		div	= { 1, 1000, 1000000, 1000000000, 1000000000000 }" \
+" 		txt	= { \"b\", \"Kb\", \"Mb\", \"Gb\", \"Tb\" }" \
 " 	}" \
 " 	variant si {" \
+" 		div	= { 1, 1000, 1000000, 1000000000, 1000000000000 }" \
+" 		txt	= { \"b\", \"Kb\", \"Mb\", \"Gb\", \"Tb\" }" \
+" 	}" \
+" 	variant bit {" \
 " 		div	= { 1, 1000, 1000000, 1000000000, 1000000000000 }" \
 " 		txt	= { \"b\", \"Kb\", \"Mb\", \"Gb\", \"Tb\" }" \
 " 	}" \

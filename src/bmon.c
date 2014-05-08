@@ -59,6 +59,7 @@ static char *usage_text =
 "\n" \
 "Output:\n" \
 "   -U, --use-si                    Use SI units\n" \
+"   -b, --use-bit                   Display in bits instead of btyes\n" \
 "\n" \
 "Module configuration:\n" \
 "   modparm := MODULE:optlist,MODULE:optlist,...\n" \
@@ -170,7 +171,7 @@ static int parse_args_post(int argc, char *argv[])
 
 	for (;;)
 	{
-		char *gostr = "i:o:p:r:R:s:aU" \
+		char *gostr = "i:o:p:r:R:s:aUb" \
 			      "L:hvVf:";
 
 		struct option long_opts[] = {
@@ -182,6 +183,7 @@ static int parse_args_post(int argc, char *argv[])
 			{"sleep-interval", 1, 0, 's'},
 			{"show-all", 0, 0, 'a'},
 			{"use-si", 0, 0, 'U'},
+			{"use-bit", 0, 0, 'b'},
 			{"lifetime", 1, 0, 'L'},
 			{0, 0, 0, 0},
 		};
@@ -223,6 +225,10 @@ static int parse_args_post(int argc, char *argv[])
 
 			case 'U':
 				cfg_setbool(cfg, "use_si", cfg_true);
+				break;
+
+			case 'b':
+				cfg_setbool(cfg, "use_bit", cfg_true);
 				break;
 
 			case 'L':

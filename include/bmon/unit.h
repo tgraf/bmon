@@ -33,6 +33,7 @@
 enum {
 	UNIT_DEFAULT,
 	UNIT_SI,
+	UNIT_BIT,
 	__UNIT_MAX,
 };
 
@@ -42,7 +43,7 @@ enum {
 #define UNIT_NUMBER		"number"
 
 struct fraction {
-	uint64_t		f_divisor;
+	float			f_divisor;
 	char *			f_name;
 
 	struct list_head	f_list;
@@ -58,7 +59,7 @@ struct unit {
 extern struct unit *	unit_lookup(const char *);
 extern struct unit *	unit_add(const char *name);
 extern void		unit_add_div(struct unit *, int, const char *, float);
-extern uint64_t		unit_divisor(uint64_t, struct unit *, char **, int *);
+extern double		unit_divisor(uint64_t, struct unit *, char **, int *);
 extern double		unit_value2str(uint64_t, struct unit *, char **, int *);
 extern void		fraction_free(struct fraction *);
 
