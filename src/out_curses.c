@@ -1202,6 +1202,13 @@ static int handle_input(int ch)
 
 static void curses_pre(void)
 {
+	static int init = 0;
+
+	if (!init) {
+		curses_init();
+		init = 1;
+	}
+
 	for (;;) {
 		int ch = getch();
 
@@ -1267,7 +1274,6 @@ static void curses_parse_opt(const char *type, const char *value)
 static struct bmon_module curses_ops = {
 	.m_name		= "curses",
 	.m_flags	= BMON_MODULE_DEFAULT,
-	.m_init		= curses_init,
 	.m_shutdown	= curses_shutdown,
 	.m_pre		= curses_pre,
 	.m_do		= curses_draw,
