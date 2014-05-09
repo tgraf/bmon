@@ -98,27 +98,15 @@ int			cfg_unit_exp		= DYNAMIC_EXP;
 static char *		configfile		= NULL;
 
 #if defined HAVE_CURSES
-#if defined HAVE_USE_DEFAULT_COLORS
-struct layout cfg_layout[] =
-{
-	{-1, -1, 0},                           /* dummy, not used */
-	{-1, -1, 0},                           /* default */
-	{-1, -1, A_REVERSE},                   /* statusbar */
-	{-1, -1, 0},                           /* header */
-	{-1, -1, 0},                           /* list */
-	{-1, -1, A_REVERSE},                   /* selected */
-};
-#else
 struct layout cfg_layout[] =
 {
 	{0, 0, 0},                              /* dummy, not used */
-	{COLOR_BLACK, COLOR_WHITE, 0},          /* default */
-	{COLOR_BLACK, COLOR_WHITE, A_REVERSE},  /* statusbar */
-	{COLOR_BLACK, COLOR_WHITE, 0},          /* header */
-	{COLOR_BLACK, COLOR_WHITE, 0},          /* list */
-	{COLOR_BLACK, COLOR_WHITE, A_REVERSE},  /* selected */
+	{COLOR_YELLOW, COLOR_BLACK, 0},         /* default */
+	{COLOR_BLUE, COLOR_WHITE, A_REVERSE},   /* statusbar */
+	{COLOR_WHITE, COLOR_BLACK, 0},          /* header */
+	{COLOR_WHITE, COLOR_BLACK, 0},          /* list */
+	{COLOR_MAGENTA, COLOR_BLACK, 0},         /* selected */
 };
-#endif
 #endif
 
 tv_t * parse_tv(char *data)

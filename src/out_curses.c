@@ -107,9 +107,9 @@ static int cols;
 static int c_show_graph = 1;
 static int c_ngraph = 1;
 static int c_use_colors = 1;
-static int c_show_details = 0;
+static int c_show_details = 1;
 static int c_show_list = 1;
-static int c_show_info = 0;
+static int c_show_info = 1;
 static int c_list_min = 6;
 
 static struct graph_cfg c_graph_cfg = {
