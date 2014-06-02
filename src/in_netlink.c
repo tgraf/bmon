@@ -31,6 +31,8 @@
 #include <bmon/input.h>
 #include <bmon/utils.h>
 
+#ifndef SYS_BSD
+
 static int c_notc = 0;
 static struct element_group *grp;
 static struct bmon_module netlink_ops;
@@ -866,3 +868,4 @@ static void __init netlink_init(void)
 {
 	input_register(&netlink_ops);
 }
+#endif

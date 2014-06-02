@@ -46,7 +46,11 @@
 #include <syslog.h>
 #include <sys/wait.h>
 #include <dirent.h>
-#include <values.h>
+#ifdef SYS_BSD
+# include <float.h>
+#else
+# include <values.h>
+#endif
 
 #if TIME_WITH_SYS_TIME
 # include <sys/time.h>

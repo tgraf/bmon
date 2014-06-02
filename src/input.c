@@ -44,11 +44,18 @@ static void activate_default(void)
 	if (!input_subsys.s_nmod) {
 		struct bmon_module *m;
 
+#ifdef SYS_LINUX
 		if (!input_set("netlink"))
 			return;
 
 		if (!input_set("proc"))
 			return;
+#endif
+
+#ifdef SYS_BSD
+		if (!input_set("sysctl"))
+			return;
+#endif
 
 		/* Fall back to anything that could act as default */
 		list_for_each_entry(m, &input_subsys.s_mod_list, m_list) {
