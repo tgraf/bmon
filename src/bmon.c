@@ -44,7 +44,7 @@ static char *usage_text =
 "Options:\n" \
 "Startup:\n" \
 "   -i, --input=MODPARM             Input module(s)\n" \
-"   -o, --output=MODPARM            Ouptut module(s)\n" \
+"   -o, --output=MODPARM            Output module(s)\n" \
 "   -f, --configfile=PATH           Alternative path to configuration file\n" \
 "   -h, --help                      Show this help text\n" \
 "   -V, --version                   Show version\n" \
@@ -53,13 +53,13 @@ static char *usage_text =
 "   -p, --policy=POLICY             Element display policy (see below)\n" \
 "   -a, --show-all                  Show all elements (even disabled elements)\n" \
 "   -r, --read-interval=FLOAT       Read interval in seconds (float)\n" \
-"   -R, --rate-internval=FLOAT      Rate interval in seconds (float)\n" \
+"   -R, --rate-interval=FLOAT       Rate interval in seconds (float)\n" \
 "   -s, --sleep-interval=FLOAT      Sleep time in seconds (float)\n" \
 "   -L, --lifetime=LIFETIME         Lifetime of an element in seconds (float)\n" \
 "\n" \
 "Output:\n" \
 "   -U, --use-si                    Use SI units\n" \
-"   -b, --use-bit                   Display in bits instead of btyes\n" \
+"   -b, --use-bit                   Display in bits instead of bytes\n" \
 "\n" \
 "Module configuration:\n" \
 "   modparm := MODULE:optlist,MODULE:optlist,...\n" \
