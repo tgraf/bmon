@@ -6,6 +6,8 @@
 .deps
 Makefile.in
 Makefile
+/autom4te.cache
+/cscope.*
 /build-aux/
 /aclocal.m4
 /configure
