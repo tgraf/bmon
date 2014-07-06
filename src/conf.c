@@ -531,7 +531,7 @@ void configfile_read(void)
 	if (configfile)
 		conf_read(configfile, 1);
 	else {
-		conf_read(SYSCONFDIR "/bmonrc", 0);
+		conf_read(SYSCONFDIR "/bmon.conf", 0);
 		
 		if (getenv("HOME")) {
 			char path[FILENAME_MAX+1];
