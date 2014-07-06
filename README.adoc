@@ -6,6 +6,12 @@ statistics and prepare them visually in a human friendly way. It
 features various output methods including an interactive curses user
 interface and a programmable text output for scripting.
 
+== New in 3.3
+ * MacOS X port
+ * Only initialize curses module if actually used
+ * Assorted bug and spelling fixes
+ * Various build fixes
+
 == Usage
 
 To run bmon in the default curses mode:
@@ -26,7 +32,7 @@ image:https://github.com/tgraf/bmon/raw/gh-pages/images/shot2.png[
 
 == Copyright
 
-  Copyright (c) 2001-2013 Thomas Graf <tgraf@suug.ch>
+  Copyright (c) 2001-2014 Thomas Graf <tgraf@suug.ch>
   Copyright (c) 2013 Red Hat, Inc.
 
 Please see the {license}[LICENSE] file for details.
