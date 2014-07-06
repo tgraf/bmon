@@ -194,6 +194,7 @@ Makefile
 include/Makefile
 src/Makefile
 man/Makefile
+examples/Makefile
 ])
 
 AC_OUTPUT
