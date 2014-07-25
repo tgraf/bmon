@@ -124,6 +124,7 @@ void fraction_free(struct fraction *f)
 	if (!f)
 		return;
 
+	list_del(&f->f_list);
 	xfree(f->f_name);
 	xfree(f);
 }
