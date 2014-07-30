@@ -157,11 +157,10 @@ struct layout cfg_layout[] =
     {COLOR_BLUE,    COLOR_YELLOW, A_REVERSE},  /* statusbar */
     {COLOR_YELLOW,  COLOR_BLACK,  0},          /* header */
     {COLOR_WHITE,   COLOR_BLACK,  0},          /* list */
-    {COLOR_MAGENTA, COLOR_BLACK,  0},          /* selected */
+    {COLOR_YELLOW,  COLOR_BLACK,  A_REVERSE},  /* selected */
     {COLOR_GREEN,   COLOR_BLACK,  0},          /* RX graph */
     {COLOR_RED,     COLOR_BLACK,  0},          /* TX graph */
 };
-#endif
 #endif
 
 struct key cfg_keys[] =
