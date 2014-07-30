@@ -107,9 +107,9 @@ static int cols;
 static int c_show_graph = 1;
 static int c_ngraph = 1;
 static int c_use_colors = 1;
-static int c_show_details = 0;
+static int c_show_details = 1;
 static int c_show_list = 1;
-static int c_show_info = 0;
+static int c_show_info = 1;
 static int c_list_min = 6;
 
 static struct graph_cfg c_graph_cfg = {
@@ -683,7 +683,7 @@ static void draw_graph_centered(struct graph *g, int row, int ncol,
 
 static void draw_table(struct graph *g, struct graph_table *tbl,
 		       struct attr *a, struct history *h,
-		       const char *hdr, int ncol)
+		       const char *hdr, int ncol, int layout)
 {
 	int i, save_row;
 	char buf[32];
@@ -715,9 +715,9 @@ static void draw_table(struct graph *g, struct graph_table *tbl,
         sprintf(mybuf, "%'8.2f ", tbl->gt_scale[i]);
         addstr(mybuf);
         /*put_line("%'8.2f ", tbl->gt_scale[i]);*/
-        apply_layout(LAYOUT_GRAPH);
+        apply_layout(layout);
         put_line("%s", tbl->gt_table + (i * graph_row_size(&g->g_cfg)));
-        apply_layout(LAYOUT_DEFAULT);
+        apply_layout(LAYOUT_LIST);
 		/*put_line("%'8.2f %s",*/
 			/*tbl->gt_scale[i],*/
 			/*tbl->gt_table + (i * graph_row_size(&g->g_cfg)));*/
@@ -754,14 +754,14 @@ static void draw_history_graph(struct attr *a, struct history *h)
 	graph_refill(g, h);
 
 	save_row = row;
-	draw_table(g, &g->g_rx, a, h, "RX", ncol);
+	draw_table(g, &g->g_rx, a, h, "RX", ncol, LAYOUT_RX_GRAPH);
 
 	if (graph_display == GRAPH_DISPLAY_SIDE_BY_SIDE) {
 		ncol = cols / 2;
 		row = save_row;
 	}
 
-	draw_table(g, &g->g_tx, a, h, "TX", ncol);
+	draw_table(g, &g->g_tx, a, h, "TX", ncol, LAYOUT_TX_GRAPH);
 
 	graph_free(g);
 }

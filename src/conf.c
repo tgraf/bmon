@@ -109,18 +109,20 @@ struct layout cfg_layout[] =
     {-1, -1, 0},            /* header */
     {-1, -1, 0},            /* list */
     {-1, -1, A_REVERSE},    /* selected */
-    {-1, -1, 0},            /* graph */
+    {-1, -1, 0},            /* RX graph */
+    {-1, -1, 0},            /* TX graph */
 };
 #else
 struct layout cfg_layout[] =
 {
 	{0, 0, 0},                               /* dummy, not used */
-	{COLOR_WHITE, COLOR_BLACK, 0},           /* default */
+	{COLOR_WHITE,  COLOR_BLACK, 0},          /* default */
 	{COLOR_BLUE,   COLOR_GREEN, A_REVERSE},  /* statusbar */
 	{COLOR_GREEN,  COLOR_BLACK, 0},          /* header */
 	{COLOR_WHITE,  COLOR_BLACK, 0},          /* list */
 	{COLOR_YELLOW, COLOR_BLACK, A_REVERSE},  /* selected */
-    {COLOR_GREEN,  COLOR_BLACK, 0},          /* graph */
+    {COLOR_GREEN,  COLOR_BLACK, 0},          /* RX graph */
+    {COLOR_RED,    COLOR_BLACK, 0},          /* TX graph */
 };
 #endif
 #endif
