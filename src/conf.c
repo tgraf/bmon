@@ -115,14 +115,14 @@ struct layout cfg_layout[] =
 #else
 struct layout cfg_layout[] =
 {
-	{0, 0, 0},                               /* dummy, not used */
-	{COLOR_WHITE,  COLOR_BLACK, 0},          /* default */
-	{COLOR_BLUE,   COLOR_GREEN, A_REVERSE},  /* statusbar */
-	{COLOR_GREEN,  COLOR_BLACK, 0},          /* header */
-	{COLOR_WHITE,  COLOR_BLACK, 0},          /* list */
-	{COLOR_YELLOW, COLOR_BLACK, A_REVERSE},  /* selected */
-    {COLOR_GREEN,  COLOR_BLACK, 0},          /* RX graph */
-    {COLOR_RED,    COLOR_BLACK, 0},          /* TX graph */
+    {0, 0, 0},                                 /* dummy, not used */
+    {COLOR_YELLOW,  COLOR_BLACK,  0},          /* default */
+    {COLOR_BLUE,    COLOR_YELLOW, A_REVERSE},  /* statusbar */
+    {COLOR_YELLOW,  COLOR_BLACK,  0},          /* header */
+    {COLOR_WHITE,   COLOR_BLACK,  0},          /* list */
+    {COLOR_MAGENTA, COLOR_BLACK,  0},          /* selected */
+    {COLOR_GREEN,   COLOR_BLACK,  0},          /* RX graph */
+    {COLOR_RED,     COLOR_BLACK,  0},          /* TX graph */
 };
 #endif
 #endif
