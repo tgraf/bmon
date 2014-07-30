@@ -100,25 +100,27 @@ int			cfg_unit_exp		= DYNAMIC_EXP;
 static char *		configfile		= NULL;
 
 #if defined HAVE_CURSES
-#if defined HAVE_USE_DEFAULT_COLORS
+#ifndef HAVE_USE_DEFAULT_COLORS
 struct layout cfg_layout[] =
 {
-	{-1, -1, 0},                           /* dummy, not used */
-	{-1, -1, 0},                           /* default */
-	{-1, -1, A_REVERSE},                   /* statusbar */
-	{-1, -1, 0},                           /* header */
-	{-1, -1, 0},                           /* list */
-	{-1, -1, A_REVERSE},                   /* selected */
+    {-1, -1, 0},            /* dummy, not used */
+    {-1, -1, 0},            /* default */
+    {-1, -1, A_REVERSE},    /* statusbar */
+    {-1, -1, 0},            /* header */
+    {-1, -1, 0},            /* list */
+    {-1, -1, A_REVERSE},    /* selected */
+    {-1, -1, 0},            /* graph */
 };
 #else
 struct layout cfg_layout[] =
 {
-	{0, 0, 0},                              /* dummy, not used */
-	{COLOR_BLACK, COLOR_WHITE, 0},          /* default */
-	{COLOR_BLACK, COLOR_WHITE, A_REVERSE},  /* statusbar */
-	{COLOR_BLACK, COLOR_WHITE, 0},          /* header */
-	{COLOR_BLACK, COLOR_WHITE, 0},          /* list */
-	{COLOR_BLACK, COLOR_WHITE, A_REVERSE},  /* selected */
+	{0, 0, 0},                               /* dummy, not used */
+	{COLOR_WHITE, COLOR_BLACK, 0},           /* default */
+	{COLOR_BLUE,   COLOR_GREEN, A_REVERSE},  /* statusbar */
+	{COLOR_GREEN,  COLOR_BLACK, 0},          /* header */
+	{COLOR_WHITE,  COLOR_BLACK, 0},          /* list */
+	{COLOR_YELLOW, COLOR_BLACK, A_REVERSE},  /* selected */
+    {COLOR_GREEN,  COLOR_BLACK, 0},          /* graph */
 };
 #endif
 #endif
