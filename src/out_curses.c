@@ -426,8 +426,10 @@ static int lines_required_for_statusbar(void)
 static void draw_statusbar(void)
 {
 	static const char *help_text = "Press ? for help";
-	char s[27];
+    static char hostname[23];
+	char s[80];
 	time_t t = time(0);
+    gethostname(hostname, 23);
 
 	apply_layout(LAYOUT_STATUSBAR);
 
@@ -437,6 +439,8 @@ static void draw_statusbar(void)
 	row = rows-1;
 	move(row, 0);
 	put_line(" %s", s);
+    move(row, strlen(s) + 1);
+    put_line(" %s", hostname);
 
 	move(row, COLS - strlen(help_text) - 1);
 	put_line("%s", help_text);
