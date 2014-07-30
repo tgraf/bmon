@@ -82,7 +82,8 @@ static void fill_table(struct graph *g, struct graph_table *tbl,
 		       struct history *h, struct history_store *data)
 {
 	struct graph_cfg *cfg = &g->g_cfg;
-	uint64_t max = 0, v;
+	uint64_t max = 0;
+	double v;
 	int i, n, t;
 	float half_step, step;
 
@@ -146,7 +147,7 @@ static void fill_table(struct graph *g, struct graph_table *tbl,
 			 &tbl->gt_y_unit, NULL);
 	
 	for (i = 0; i < cfg->gc_height; i++)
-		tbl->gt_scale[i] /= (double) v;
+		tbl->gt_scale[i] /= v;
 }
 
 struct graph *graph_alloc(struct history *h, struct graph_cfg *cfg)

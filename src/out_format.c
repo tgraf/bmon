@@ -126,10 +126,10 @@ static char *get_token(struct element_group *g, struct element *e,
 		}
 
 		if (!strncasecmp(type, "rx:", 3)) {
-			snprintf(buf, len, "%lu", a->a_rx_rate.r_total);
+			snprintf(buf, len, "%llu", a->a_rx_rate.r_total);
 			return buf;
 		} else if (!strncasecmp(type, "tx:", 3)) {
-			snprintf(buf, len, "%lu", a->a_tx_rate.r_total);
+			snprintf(buf, len, "%llu", a->a_tx_rate.r_total);
 			return buf;
 		} else if (!strncasecmp(type, "rxrate:", 7)) {
 			snprintf(buf, len, "%.2f", a->a_rx_rate.r_rate);

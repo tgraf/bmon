@@ -34,13 +34,15 @@ static LIST_HEAD(units);
 
 static struct list_head *get_flist(struct unit *unit)
 {
-	static int cached = 0, div = UNIT_DEFAULT;
+	int div = UNIT_DEFAULT;
 
-	if (!cached && cfg_getbool(cfg, "use_si"))
+	if (cfg_getbool(cfg, "use_bit"))
+		div = UNIT_BIT;
+	else if (cfg_getbool(cfg, "use_si"))
 		div = UNIT_SI;
 	
-	if (!list_empty(&unit->u_div[UNIT_SI]) && div == UNIT_SI)
-		return &unit->u_div[UNIT_SI];
+	if (!list_empty(&unit->u_div[div]))
+		return &unit->u_div[div];
 	else
 		return &unit->u_div[UNIT_DEFAULT];
 }
@@ -72,8 +74,8 @@ struct unit *unit_lookup(const char *name)
  * If prec points to a vaild integer, a number of precision digits
  * is suggested to avoid n.00 to make pretty printing easier.
  */
-uint64_t unit_divisor(uint64_t hint, struct unit *unit, char **name,
-		      int *prec)
+double unit_divisor(uint64_t hint, struct unit *unit, char **name,
+		    int *prec)
 {
 	struct list_head *flist = get_flist(unit);
 	struct fraction *f;
@@ -98,7 +100,7 @@ uint64_t unit_divisor(uint64_t hint, struct unit *unit, char **name,
 	return 1;
 
 found_it:
-	if (f->f_divisor == 1 && prec)
+	if (f->f_divisor == 1.0f && prec)
 		*prec = 0;
 
 	*name = f->f_name;
@@ -108,12 +110,13 @@ found_it:
 double unit_value2str(uint64_t value, struct unit *unit,
 		      char **name, int *prec)
 {
-	uint64_t div = unit_divisor(value, unit, name, prec);
+	double div = unit_divisor(value, unit, name, prec);
+	double v = (double) value;
 
-	if (value % div == 0 && prec)
+	if (fmod(v, div) == 0.0f && prec)
 		*prec = 0;
 
-	return (double) value / (double) div;
+	return v / div;
 }
 
 void fraction_free(struct fraction *f)
@@ -121,6 +124,7 @@ void fraction_free(struct fraction *f)
 	if (!f)
 		return;
 
+	list_del(&f->f_list);
 	xfree(f->f_name);
 	xfree(f);
 }

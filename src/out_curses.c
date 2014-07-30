@@ -674,7 +674,6 @@ static void draw_graph_centered(struct graph *g, int row, int ncol,
 
 	if (hcenter < 9)
 		hcenter = 9;
-
 	mvprintw(row, ncol + hcenter, "%.*s", g->g_cfg.gc_width, text);
 }
 
@@ -705,11 +704,19 @@ static void draw_table(struct graph *g, struct graph_table *tbl,
 	//move(row, ncol + g->g_cfg.gc_width - 3);
 	//put_line("[err %.2f%%]", rtiming.rt_variance.v_error);
 
+    char mybuf[23];
+    memset(buf, 0, 23);
 	for (i = (g->g_cfg.gc_height - 1); i >= 0; i--) {
 		move(++row, ncol);
-		put_line("%'8.2f %s",
-			tbl->gt_scale[i],
-			tbl->gt_table + (i * graph_row_size(&g->g_cfg)));
+        sprintf(mybuf, "%'8.2f ", tbl->gt_scale[i]);
+        addstr(mybuf);
+        /*put_line("%'8.2f ", tbl->gt_scale[i]);*/
+        apply_layout(LAYOUT_GRAPH);
+        put_line("%s", tbl->gt_table + (i * graph_row_size(&g->g_cfg)));
+        apply_layout(LAYOUT_DEFAULT);
+		/*put_line("%'8.2f %s",*/
+			/*tbl->gt_scale[i],*/
+			/*tbl->gt_table + (i * graph_row_size(&g->g_cfg)));*/
 	}
 
 	move(++row, ncol);
@@ -1202,6 +1209,13 @@ static int handle_input(int ch)
 
 static void curses_pre(void)
 {
+	static int init = 0;
+
+	if (!init) {
+		curses_init();
+		init = 1;
+	}
+
 	for (;;) {
 		int ch = getch();
 
@@ -1267,7 +1281,6 @@ static void curses_parse_opt(const char *type, const char *value)
 static struct bmon_module curses_ops = {
 	.m_name		= "curses",
 	.m_flags	= BMON_MODULE_DEFAULT,
-	.m_init		= curses_init,
 	.m_shutdown	= curses_shutdown,
 	.m_pre		= curses_pre,
 	.m_do		= curses_draw,

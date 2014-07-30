@@ -2,10 +2,6 @@
 
 ACLOCAL_AMFLAGS = -I m4
 
-SUBDIRS = src man include
+SUBDIRS = src man include examples
 
-pkgsysconfdir = $(sysconfdir)
-pkgsysconf_DATA = etc/bmon.conf
-
-EXTRA_DIST = \
-	$(pkgsysconf_DATA)
+EXTRA_DIST = ChangeLog LICENSE.BSD LICENSE.MIT NEWS README.adoc

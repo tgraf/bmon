@@ -21,7 +21,7 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 # DEALINGS IN THE SOFTWARE.
 
-AC_INIT(bmon, 3.2, [], [], [http://www.infradead.org/~tgr/bmon/])
+AC_INIT(bmon, 3.3, [], [], [http://www.infradead.org/~tgr/bmon/])
 AC_CONFIG_HEADERS(include/bmon/defs.h)
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_MACRO_DIR([m4])
@@ -69,8 +69,12 @@ fi
 
 PKG_CHECK_MODULES([CONFUSE], [libconfuse], [], AC_MSG_ERROR([requires libconfuse]))
 
-PKG_CHECK_MODULES([LIBNL], [libnl-3.0], [], AC_MSG_ERROR([requires libnl3-dev]))
-PKG_CHECK_MODULES([LIBNL_ROUTE], [libnl-route-3.0], [], AC_MSG_ERROR([requires libnl3-route]))
+case ${target_os} in
+    linux*)
+        PKG_CHECK_MODULES([LIBNL], [libnl-3.0], [], AC_MSG_ERROR([requires libnl3-dev]))
+        PKG_CHECK_MODULES([LIBNL_ROUTE], [libnl-route-3.0], [], AC_MSG_ERROR([requires libnl3-route]))
+    ;;
+esac
 
 AC_CHECK_LIB(m, pow, [], AC_MSG_ERROR([requires libm]))
 
@@ -190,6 +194,7 @@ Makefile
 include/Makefile
 src/Makefile
 man/Makefile
+examples/Makefile
 ])
 
 AC_OUTPUT

@@ -36,6 +36,7 @@ bmon_SOURCES = \
 	in_null.c \
 	in_dummy.c \
 	in_proc.c \
+	in_sysctl.c \
 	out_null.c \
 	out_format.c \
 	out_ascii.c \
