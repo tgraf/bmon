@@ -71,6 +71,11 @@ static int ngraph;
  */
 static unsigned int selection_offset;
 
+/* TODO - use config file */
+/* selection character and attribute */
+static char select_char = '>';
+static int select_char_attr = A_BOLD;
+
 /*
  * Offset in number of lines of the first element to be drawn. Updated
  * in draw_content()
@@ -605,9 +610,9 @@ static void draw_element(struct element_group *g, struct element *e,
 		} else if (e == current_element) {
 			apply_layout(LAYOUT_SELECTED);
 			addch(' ');
-			attron(A_BOLD);
-			addch(ACS_RARROW);
-			attroff(A_BOLD);
+			attron(select_char_attr);
+			addch(select_char);
+			attroff(select_char_attr);
 			apply_layout(LAYOUT_LIST);
 		} else if (*line == offset + list_length - 1 &&
 		           *line < (list_req - 1)) {
