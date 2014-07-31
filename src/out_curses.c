@@ -40,11 +40,11 @@ enum {
 };
 
 enum {
-	KEY_TOGGLE_LIST		= 'l',
+	KEY_TOGGLE_LIST		= 'L',
 	KEY_TOGGLE_GRAPH	= 'g',
 	KEY_TOGGLE_DETAILS	= 'd',
 	KEY_TOGGLE_INFO		= 'i',
-	KEY_COLLECT_HISTORY	= 'h',
+	KEY_COLLECT_HISTORY	= 'H',
 };
 
 #define DETAILS_COLS		40
@@ -1167,18 +1167,22 @@ static int handle_input(int ch)
 			}
 			return 1;
 
+		case 'j':
 		case KEY_DOWN:
 			element_select_next();
 			return 1;
 
+		case 'k':
 		case KEY_UP:
 			element_select_prev();
 			return 1;
 
+		case 'h':
 		case KEY_LEFT:
 			attr_select_prev();
 			return 1;
 
+		case 'l':
 		case KEY_RIGHT:
 			attr_select_next();
 			return 1;
