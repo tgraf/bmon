@@ -416,6 +416,7 @@ static void draw_header(void)
 	move(row, COLS - strlen(PACKAGE_STRING) - 1);
 	put_line("%s", PACKAGE_STRING);
 	move(row, 0);
+	apply_layout(LAYOUT_LIST);
 }
 
 static int lines_required_for_statusbar(void)
@@ -632,6 +633,7 @@ static void draw_element(struct element_group *g, struct element *e,
 
 static void draw_group(struct element_group *g, void *arg)
 {
+	apply_layout(LAYOUT_HEADER);
 	int *line = arg;
 
 	if (line_visible(*line)) {

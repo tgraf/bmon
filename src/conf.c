@@ -116,7 +116,7 @@ struct layout cfg_layout[] =
 struct layout cfg_layout[] =
 {
     {0, 0, 0},                                 /* dummy, not used */
-    {COLOR_YELLOW,  COLOR_BLACK,  0},          /* default */
+    {COLOR_WHITE,   COLOR_BLACK,  0},          /* default */
     {COLOR_BLUE,    COLOR_YELLOW, A_REVERSE},  /* statusbar */
     {COLOR_YELLOW,  COLOR_BLACK,  0},          /* header */
     {COLOR_WHITE,   COLOR_BLACK,  0},          /* list */
