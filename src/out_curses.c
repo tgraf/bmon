@@ -335,7 +335,7 @@ static void print_message(const char *text)
 
 static void draw_help(void)
 {
-#define HW 46
+#define HW 50
 #define HH 19
 	int i, y = (rows/2) - (HH/2);
 	int x = (cols/2) - (HW/2);
@@ -371,29 +371,29 @@ static void draw_help(void)
 	mvaddnstr(y+ 0, x+1, "Navigation", -1);
 	attroff(A_BOLD | A_UNDERLINE);
 
-	mvaddnstr(y+ 1, x+3, "Up, Down      Previous/Next element", -1);
-	mvaddnstr(y+ 2, x+3, "PgUp, PgDown  Scroll up/down entire page", -1);
-	mvaddnstr(y+ 3, x+3, "Left, Right   Previous/Next attribute", -1);
-	mvaddnstr(y+ 4, x+3, "[, ]          Previous/Next group", -1);
-	mvaddnstr(y+ 5, x+3, "?             Toggle quick reference", -1);
-	mvaddnstr(y+ 6, x+3, "q             Quit bmon", -1);
+	mvaddnstr(y+ 1, x+3, "Up/k, Down/j      Previous/Next element", -1);
+	mvaddnstr(y+ 2, x+3, "PgUp, PgDown      Scroll up/down entire page", -1);
+	mvaddnstr(y+ 3, x+3, "Left/h, Right/l   Previous/Next attribute", -1);
+	mvaddnstr(y+ 4, x+3, "[, ]              Previous/Next group", -1);
+	mvaddnstr(y+ 5, x+3, "?                 Toggle quick reference", -1);
+	mvaddnstr(y+ 6, x+3, "q                 Quit bmon", -1);
 
 	attron(A_BOLD | A_UNDERLINE);
 	mvaddnstr(y+ 8, x+1, "Display Settings", -1);
 	attroff(A_BOLD | A_UNDERLINE);
 
-	mvaddnstr(y+ 9, x+3, "d             Toggle detailed statistics", -1);
-	mvaddnstr(y+10, x+3, "l             Toggle element list", -1);
-	mvaddnstr(y+11, x+3, "i             Toggle additional info", -1);
+	mvaddnstr(y+ 9, x+3, "d                 Toggle detailed statistics", -1);
+	mvaddnstr(y+10, x+3, "L                 Toggle element list", -1);
+	mvaddnstr(y+11, x+3, "i                 Toggle additional info", -1);
 
 	attron(A_BOLD | A_UNDERLINE);
 	mvaddnstr(y+13, x+1, "Graph Settings", -1);
 	attroff(A_BOLD | A_UNDERLINE);
 
-	mvaddnstr(y+14, x+3, "g             Toggle graphical statistics", -1);
-	mvaddnstr(y+15, x+3, "H             Start recording history data", -1);
-	mvaddnstr(y+16, x+3, "TAB           Switch time unit of graph", -1);
-	mvaddnstr(y+17, x+3, "<, >          Change number of graphs", -1);
+	mvaddnstr(y+14, x+3, "g                 Toggle graphical statistics", -1);
+	mvaddnstr(y+15, x+3, "H                 Start recording history data", -1);
+	mvaddnstr(y+16, x+3, "TAB               Switch time unit of graph", -1);
+	mvaddnstr(y+17, x+3, "<, >              Change number of graphs", -1);
 
 	attroff(A_STANDOUT);
 
@@ -742,7 +742,7 @@ static void draw_table(struct graph *g, struct graph_table *tbl,
 
 	if (!h) {
 		const char *t1 = " No history data available. ";
-		const char *t2 = " Press h to start collecting history. ";
+		const char *t2 = " Press H to start collecting history. ";
 		int vcenter = g->g_cfg.gc_height / 2;
 
 		save_row = row;
