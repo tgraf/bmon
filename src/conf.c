@@ -69,6 +69,16 @@ static cfg_opt_t unit_opts[] = {
 	CFG_END()
 };
 
+static cfg_opt_t color_opts[] = {
+    CFG_STR_LIST("color_pair", "", CFGF_NONE),
+    CFG_END()
+};
+
+static cfg_opt_t layout_opts[] = {
+    CFG_SEC("color", color_opts, CFGF_MULTI | CFGF_TITLE),
+    CFG_END()
+};
+
 static cfg_opt_t global_opts[] = {
 	CFG_FLOAT("read_interval", 1.0f, CFGF_NONE),
 	CFG_FLOAT("rate_interval", 1.0f, CFGF_NONE),
@@ -87,6 +97,7 @@ static cfg_opt_t global_opts[] = {
 	CFG_SEC("attr", attr_opts, CFGF_MULTI | CFGF_TITLE),
 	CFG_SEC("history", history_opts, CFGF_MULTI | CFGF_TITLE),
 	CFG_SEC("element", element_opts, CFGF_MULTI | CFGF_TITLE),
+    CFG_SEC("layout", layout_opts, CFGF_MULTI | CFGF_TITLE),
 	CFG_END()
 };
 
@@ -427,6 +438,123 @@ static void configfile_read_attrs(void)
 	}
 }
 
+static int parse_color(const char* color)
+{
+    int color_code;
+
+    if ((strcasestr(color, "red") != NULL))
+        color_code = COLOR_RED;
+    else if ((strcasestr(color, "green") != NULL))
+        color_code = COLOR_GREEN;
+    else if ((strcasestr(color, "white") != NULL))
+        color_code = COLOR_WHITE;
+    else if ((strcasestr(color, "black") != NULL))
+        color_code = COLOR_BLACK;
+    else if ((strcasestr(color, "blue") != NULL))
+        color_code = COLOR_BLUE;
+    else if ((strcasestr(color, "yellow") != NULL))
+        color_code = COLOR_YELLOW;
+    else if ((strcasestr(color, "magenta") != NULL))
+        color_code = COLOR_MAGENTA;
+    else if ((strcasestr(color, "cyan") != NULL))
+        color_code = COLOR_CYAN;
+    else {
+        fprintf(stderr, "error wrong color code\n");
+        return -1;
+    }
+
+    return color_code;
+}
+
+static void add_layout(const char *layout_name, cfg_t *color_cfg)
+{
+    const char *fg, *bg;
+    int fg_code, bg_code, layout_idx;
+
+    fg = cfg_getnstr(color_cfg, "color_pair", 0);
+    bg = cfg_getnstr(color_cfg, "color_pair", 1);
+
+    fg_code = parse_color(fg);
+    bg_code = parse_color(bg);
+
+    fprintf(stderr, "%s:\tfg: %s bg: %s\n", layout_name, fg, bg);
+
+    if ((strcasecmp(layout_name, "default") == 0)) {
+        fprintf(stderr, "default layout detected\n");
+        layout_idx = LAYOUT_DEFAULT;
+    }
+    else if ((strcasecmp(layout_name, "statusbar") == 0)) {
+        fprintf(stderr, "statusbar layout detected\n");
+        layout_idx = LAYOUT_STATUSBAR;
+    }
+    else if ((strcasecmp(layout_name, "header") == 0)) {
+        fprintf(stderr, "header layout detected\n");
+        layout_idx = LAYOUT_HEADER;
+    }
+    else if ((strcasecmp(layout_name, "list") == 0)) {
+        fprintf(stderr, "list layout detected\n");
+        layout_idx = LAYOUT_LIST;
+    }
+    else if ((strcasecmp(layout_name, "selected") == 0)) {
+        fprintf(stderr, "selected layout detected\n");
+        layout_idx = LAYOUT_SELECTED;
+    }
+    else if ((strcasecmp(layout_name, "rx_graph") == 0)) {
+        fprintf(stderr, "rx_graph layout detected\n");
+        layout_idx = LAYOUT_RX_GRAPH;
+    }
+    else if ((strcasecmp(layout_name, "tx_graph") == 0)) {
+        fprintf(stderr, "tx_graph layout detected\n");
+        layout_idx = LAYOUT_TX_GRAPH;
+    }
+    else {
+        fprintf(stderr, "Error no valid color pair given\n");
+        /* TODO:
+         * useful error handling
+         */
+    }
+
+    struct layout l = { fg_code, bg_code, 0 };
+    cfg_layout[layout_idx] = l;
+}
+
+static void configfile_read_layout_cfg(void)
+{
+    int i, nlayouts;
+    cfg_t *lout;
+    nlayouts = cfg_size(cfg, "layout");
+    fprintf(stderr, "nlayouts: %d\n", nlayouts);
+    for (i = 0; i < nlayouts; i++)
+    {
+        int c, ncolors;
+        const char *name;
+        if (!(lout = cfg_getnsec(cfg, "layout", i)))
+            BUG();
+
+        if (!(name = cfg_title(lout)))
+            BUG();
+
+        ncolors = cfg_size(lout, "color");
+        if (ncolors > LAYOUT_MAX) {
+            fprintf(stderr, "Warning excceeded maximum number of layouts\n");
+            ncolors = LAYOUT_MAX;
+        }
+
+        for (c = 0; c < ncolors; c++) {
+            const char *color;
+            cfg_t *color_pair;
+
+            if (!(color_pair = cfg_getnsec(lout, "color", c)))
+                BUG();
+
+            if (!(name = cfg_title(color_pair)))
+                BUG();
+
+            add_layout(name, color_pair);
+        }
+    }
+}
+
 static void conf_read(const char *path, int must)
 {
 	int err;
@@ -454,6 +582,7 @@ static void conf_read(const char *path, int must)
 	configfile_read_history();
 	configfile_read_attrs();
 	configfile_read_element_cfg();
+    configfile_read_layout_cfg();
 }
 
 static const char default_config[] = \
@@ -512,6 +641,29 @@ static const char default_config[] = \
 "history day {" \
 "	interval	= 86400.0" \
 "	size		= 60" \
+"}"
+"layout colors {" \
+"   color default {" \
+"       color_pair = { \"white\", \"black\" }" \
+"   }" \
+"   color statusbar{" \
+"       color_pair = { \"blue\", \"green\" }" \
+"   }" \
+"   color header {" \
+"       color_pair = { \"green\", \"black\" }" \
+"   }" \
+"   color list {" \
+"       color_pair = { \"white\", \"black\" }" \
+"   }" \
+"   color selected {" \
+"       color_pair = { \"yellow\", \"black\" }" \
+"   }" \
+"   color rx_graph {" \
+"       color_pair = { \"green\", \"black\" }" \
+"   }" \
+"   color tx_graph {" \
+"       color_pair = { \"red\", \"black\" }" \
+"   }" \
 "}";
 
 static void conf_read_default(void)
@@ -528,6 +680,7 @@ static void conf_read_default(void)
 	configfile_read_history();
 	configfile_read_attrs();
 	configfile_read_element_cfg();
+    configfile_read_layout_cfg();
 }
 
 void configfile_read(void)
