@@ -40,11 +40,11 @@ enum {
 };
 
 enum {
-	KEY_TOGGLE_LIST		= 'l',
+	KEY_TOGGLE_LIST		= 'L',
 	KEY_TOGGLE_GRAPH	= 'g',
 	KEY_TOGGLE_DETAILS	= 'd',
 	KEY_TOGGLE_INFO		= 'i',
-	KEY_COLLECT_HISTORY	= 'h',
+	KEY_COLLECT_HISTORY	= 'H',
 };
 
 #define DETAILS_COLS		40
@@ -70,6 +70,11 @@ static int ngraph;
  * selected element. Updated while summing up required lines.
  */
 static unsigned int selection_offset;
+
+/* TODO - use config file */
+/* selection character and attribute */
+static char select_char = '>';
+static int select_char_attr = A_BOLD;
 
 /*
  * Offset in number of lines of the first element to be drawn. Updated
@@ -416,6 +421,7 @@ static void draw_header(void)
 	move(row, COLS - strlen(PACKAGE_STRING) - 1);
 	put_line("%s", PACKAGE_STRING);
 	move(row, 0);
+	apply_layout(LAYOUT_LIST);
 }
 
 static int lines_required_for_statusbar(void)
@@ -604,9 +610,9 @@ static void draw_element(struct element_group *g, struct element *e,
 		} else if (e == current_element) {
 			apply_layout(LAYOUT_SELECTED);
 			addch(' ');
-			attron(A_BOLD);
-			addch(ACS_RARROW);
-			attroff(A_BOLD);
+			attron(select_char_attr);
+			addch(select_char);
+			attroff(select_char_attr);
 			apply_layout(LAYOUT_LIST);
 		} else if (*line == offset + list_length - 1 &&
 		           *line < (list_req - 1)) {
@@ -632,6 +638,7 @@ static void draw_element(struct element_group *g, struct element *e,
 
 static void draw_group(struct element_group *g, void *arg)
 {
+	apply_layout(LAYOUT_HEADER);
 	int *line = arg;
 
 	if (line_visible(*line)) {
@@ -1167,18 +1174,22 @@ static int handle_input(int ch)
 			}
 			return 1;
 
+		case 'j':
 		case KEY_DOWN:
 			element_select_next();
 			return 1;
 
+		case 'k':
 		case KEY_UP:
 			element_select_prev();
 			return 1;
 
+		case 'h':
 		case KEY_LEFT:
 			attr_select_prev();
 			return 1;
 
+		case 'l':
 		case KEY_RIGHT:
 			attr_select_next();
 			return 1;
