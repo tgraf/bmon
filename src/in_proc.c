@@ -151,7 +151,7 @@ static void proc_read(void)
 			continue;
 
 		if (!(e = element_lookup(grp, p, 0, NULL, ELEMENT_CREAT)))
-			return;
+			goto skip;
 
 		if (e->e_flags & ELEMENT_FLAG_CREATED) {
 			if (element_set_key_attr(e, "bytes", "packets") ||
@@ -171,7 +171,7 @@ static void proc_read(void)
 		element_notify_update(e, NULL);
 		element_lifesign(e, 1);
 	}
-	
+skip:
 	fclose(fd);
 }
 
