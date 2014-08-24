@@ -1266,7 +1266,7 @@ static void curses_parse_opt(const char *type, const char *value)
 		c_graph_cfg.gc_height = strtol(value, NULL, 0);
 	else if (!strcasecmp(type, "gwidth") && value)
 		c_graph_cfg.gc_width = strtol(value, NULL, 0);
-	else if (!strcasecmp(type, "ngraph")) {
+	else if (!strcasecmp(type, "ngraph") && value) {
 		c_ngraph = strtol(value, NULL, 0);
 		c_show_graph = !!c_ngraph;
 	} else if (!strcasecmp(type, "details"))
