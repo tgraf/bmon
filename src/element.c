@@ -220,10 +220,8 @@ void element_free(struct element *e)
 		list_for_each_entry_safe(a, an, &e->e_attrhash[i], a_list)
 			attr_free(a);
 
-	if (e->e_group) {
-		list_del(&e->e_list);
-		e->e_group->g_nelements--;
-	}
+	list_del(&e->e_list);
+	e->e_group->g_nelements--;
 
 	xfree(e->e_name);
 	xfree(e);
