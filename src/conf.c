@@ -371,7 +371,7 @@ static void configfile_read_units(void)
 
 static void configfile_read_attrs(void)
 {
-	int i, nattrs, t;
+	int i, nattrs, t = 0;
 
 	nattrs = cfg_size(cfg, "attr");
 
