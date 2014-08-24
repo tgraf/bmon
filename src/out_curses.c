@@ -1112,7 +1112,7 @@ static int handle_input(int ch)
 
 		case '?':
 			clear();
-			print_help = 1;
+			print_help = print_help ? 0 : 1;
 			return 1;
 
 		case KEY_TOGGLE_GRAPH:
