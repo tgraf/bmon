@@ -1,10 +1,33 @@
-language: c
-compiler:
-  - gcc
-  - clang
-before_install:
-  - sudo apt-get install libconfuse-dev
-  - sudo apt-get install libnl-3-dev libnl-route-3-dev
-  - sudo apt-get install libncurses-dev
-# Change this to your needs
-script: ./.travis/run.sh
+script: ./autogen.sh && ./configure && make
+
+env:
+  global:
+    # COVERITY_SCAN_TOKEN
+    # ** specific to your project **
+    secure: "C87Pgf5AVDoyQfm9MIv81g"
+
+addons:
+  coverity_scan:
+
+    # GitHub project metadata
+    # ** specific to your project **
+    project:
+      name: tgraf/bmon
+      version: 3.4
+      description: bandwidth monitor
+
+    # Where email notification of build analysis results will be sent
+    notification_email: tgraf@suug.ch
+
+    # Commands to prepare for build_command
+    # ** likely specific to your build **
+    build_command_prepend: ./autogen.sh && ./configure
+
+    # The command that will be added as an argument to "cov-build" to compile your project for analysis,
+    # ** likely specific to your build **
+    build_command: make
+
+    # Pattern to match selecting branches that will run analysis. We recommend leaving this set to 'coverity_scan'.
+    # Take care in resource usage, and consider the build frequency allowances per
+    #   https://scan.coverity.com/faq#frequency
+    branch_pattern: coverity_scan
