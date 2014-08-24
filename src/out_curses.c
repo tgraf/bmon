@@ -177,7 +177,10 @@ static void center_text(const char *fmt, ...)
 	unsigned int col;
 
 	va_start(args, fmt);
-	vasprintf(&str, fmt, args);
+	if (vasprintf(&str, fmt, args) < 0) {
+		fprintf(stderr, "vasprintf: Out of memory\n");
+		exit(ENOMEM);
+	}
 	va_end(args);
 
 	col = (cols / 2) - (strlen(str) / 2);
