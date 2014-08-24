@@ -101,15 +101,15 @@ static void proc_read(void)
 {
 	struct element *e;
 	FILE *fd;
-	char buf[512], *p, *s;
+	char buf[512], *p, *s, *unused;
 	int w;
 	
 	if (!(fd = fopen(c_path, "r")))
 		quit("Unable to open file %s: %s\n", c_path, strerror(errno));
 
 	/* Ignore header */
-	fgets(buf, sizeof(buf), fd);
-	fgets(buf, sizeof(buf), fd);
+	unused = fgets(buf, sizeof(buf), fd);
+	unused = fgets(buf, sizeof(buf), fd);
 	
 	for (; fgets(buf, sizeof(buf), fd);) {
 		uint64_t data[NUM_PROC_VALUE][2];
