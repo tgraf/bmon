@@ -1,5 +1,4 @@
-= bmon =
-:license: https://github.com/tgraf/bmon/blob/master/LICENSE
+# bmon - Bandwidth Monitor
 
 [![Build Status](https://travis-ci.org/tgraf/bmon.svg?branch=master)](https://travis-ci.org/tgraf/bmon)
 
@@ -8,39 +7,41 @@ statistics and prepare them visually in a human friendly way. It
 features various output methods including an interactive curses user
 interface and a programmable text output for scripting.
 
-== New in 3.4
+## Changes
+
+### New in 3.4
  * Bugfixes
    * blank screen with config file
    * quick-help toggle with '?' in curses
  * Better bmon.conf example
 
-== New in 3.3
+## New in 3.3
  * MacOS X port
  * Only initialize curses module if actually used
  * Assorted bug and spelling fixes
  * Various build fixes
 
-== Usage
+### Usage
 
 To run bmon in the default curses mode:
 
-  bmon
+> bmon
 
 There are many other options available and full help is
 provided via:
 
-  bmon --help
+> bmon --help
 
-== Screenshots
+## Screenshots
 
-image:https://github.com/tgraf/bmon/raw/gh-pages/images/shot1.png[
-"Screenshot 1", width=512]
-image:https://github.com/tgraf/bmon/raw/gh-pages/images/shot2.png[
-"Screenshot 2", width=512]
+![Screenshot 1](https://github.com/tgraf/bmon/raw/gh-pages/images/shot1.png =512x)
+![Screenshot 2](https://github.com/tgraf/bmon/raw/gh-pages/images/shot2.png =512x)
 
-== Copyright
+## Copyright
 
-  Copyright (c) 2001-2014 Thomas Graf <tgraf@suug.ch>
-  Copyright (c) 2013 Red Hat, Inc.
+> *Copyright (c) 2001-2014 Thomas Graf <tgraf@suug.ch>
+> Copyright (c) 2013 Red Hat, Inc.*
 
-Please see the {license}[LICENSE] file for details.
+Please see the [LICENSE](https://github.com/tgraf/bmon/blob/master/LICENSE)
+file for additional details.
+
