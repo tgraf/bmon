@@ -28,7 +28,7 @@
 #include <bmon/utils.h>
 #include <bmon/unit.h>
 
-static struct unit *byte_unit, *bit_unit, *number_unit;
+static struct unit *byte_unit, *bit_unit;
 
 static LIST_HEAD(units);
 

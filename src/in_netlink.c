@@ -774,7 +774,7 @@ static void netlink_shutdown(void)
 
 static int netlink_do_init(void)
 {
-	int err, i;
+	int err;
 
 	if (!(sock = nl_socket_alloc())) {
 		fprintf(stderr, "Unable to allocate netlink socket\n");
