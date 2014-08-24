@@ -1,6 +1,7 @@
 # bmon - Bandwidth Monitor
 
 [![Build Status](https://travis-ci.org/tgraf/bmon.svg?branch=master)](https://travis-ci.org/tgraf/bmon)
+[![Coverity Status](https://scan.coverity.com/projects/2864/badge.svg)](https://scan.coverity.com/projects/2864)
 
 bmon is a monitoring and debugging tool to capture networking related
 statistics and prepare them visually in a human friendly way. It
