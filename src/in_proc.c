@@ -101,7 +101,7 @@ static void proc_read(void)
 {
 	struct element *e;
 	FILE *fd;
-	char buf[512], *p, *s, *unused;
+	char buf[512], *p, *s, *unused __unused__;
 	int w;
 	
 	if (!(fd = fopen(c_path, "r")))

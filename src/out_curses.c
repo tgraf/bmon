@@ -153,7 +153,7 @@ static void put_line(const char *fmt, ...)
 {
 	va_list args;
 	char buf[2048];
-	int x, y;
+	int x, y __unused__;
 
 	memset(buf, 0, sizeof(buf));
 	getyx(stdscr, y, x);
