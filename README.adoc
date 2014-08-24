@@ -1,7 +1,7 @@
 = bmon =
 :license: https://github.com/tgraf/bmon/blob/master/LICENSE
 
-image:https://travis-ci.org/tgraf/bmon.svg?branch=master
+[![Build Status](https://travis-ci.org/tgraf/bmon.svg?branch=master)](https://travis-ci.org/tgraf/bmon)
 
 bmon is a monitoring and debugging tool to capture networking related
 statistics and prepare them visually in a human friendly way. It
