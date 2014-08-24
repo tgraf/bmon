@@ -1,0 +1,13 @@
+v3.4 - August 24, 2014
+----------------------
+ * Bugfixes
+   * blank screen with config file
+   * quick-help toggle with '?' in curses
+ * Better bmon.conf example
+
+v3.3 - July 6, 2014
+-------------------
+ * MacOS X port
+ * Only initialize curses module if actually used
+ * Assorted bug and spelling fixes
+ * Various build fixes

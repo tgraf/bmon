@@ -6,6 +6,12 @@ statistics and prepare them visually in a human friendly way. It
 features various output methods including an interactive curses user
 interface and a programmable text output for scripting.
 
+== New in 3.4
+ * Bugfixes
+   * blank screen with config file
+   * quick-help toggle with '?' in curses
+ * Better bmon.conf example
+
 == New in 3.3
  * MacOS X port
  * Only initialize curses module if actually used
