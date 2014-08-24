@@ -34,8 +34,8 @@ provided via:
 
 ## Screenshots
 
-![Screenshot 1](https://github.com/tgraf/bmon/raw/gh-pages/images/shot1.png =512x)
-![Screenshot 2](https://github.com/tgraf/bmon/raw/gh-pages/images/shot2.png =512x)
+![Screenshot 1](https://github.com/tgraf/bmon/raw/gh-pages/images/shot1.png)
+![Screenshot 2](https://github.com/tgraf/bmon/raw/gh-pages/images/shot2.png)
 
 ## Copyright
 
