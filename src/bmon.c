@@ -269,6 +269,7 @@ int main(int argc, char *argv[])
 {
 	unsigned long sleep_time;
 	double read_interval;
+	int unused;
 	
 	start_time = time(0);
 	memset(&rtiming, 0, sizeof(rtiming));
