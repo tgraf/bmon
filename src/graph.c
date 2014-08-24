@@ -58,26 +58,6 @@ static inline char *tbl_pos(struct graph_cfg *cfg, char *tbl, int nrow, int ncol
 	return at_col(at_row(cfg, tbl, nrow), ncol);
 }
 
-static void write_column(struct graph_cfg *cfg, struct graph_table *tbl, int ncol,
-			 uint64_t value, double *scale, double half_step)
-{
-	char *col = at_col(tbl->gt_table, ncol);
-	int i;
-
-#if 0
-	if (value == UNK_DATA) {
-		for (i = 0; i < height; i++)
-			*(at_row(g, col, i)) = unk_char;
-#endif
-	if (value) {
-		*(at_row(cfg, col, 0)) = ':';
-
-		for (i = 0; i < cfg->gc_height; i++)
-			if (value >= (scale[i] - half_step))
-				*(at_row(cfg, col, i)) = cfg->gc_foreground;
-	}
-}
-
 static void fill_table(struct graph *g, struct graph_table *tbl,
 		       struct history *h, struct history_store *data)
 {
