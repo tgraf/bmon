@@ -191,7 +191,7 @@ char *unit_bytes2str(uint64_t bytes, char *buf, size_t len)
 		v = unit_value2str(bytes, byte_unit, &ustr, &prec);
 		snprintf(buf, len, "%'.*f%3s", prec, v, ustr);
 	} else
-		snprintf(buf, len, "%llu", (unsigned long long) bytes);
+		snprintf(buf, len, "%" PRIu64, bytes);
 
 	return buf;
 }
@@ -206,7 +206,7 @@ char *unit_bit2str(uint64_t bits, char *buf, size_t len)
 		v = unit_value2str(bits, bit_unit, &ustr, &prec);
 		snprintf(buf, len, "%'.*f%3s", prec, v, ustr);
 	} else
-		snprintf(buf, len, "%llu", (unsigned long long) bits);
+		snprintf(buf, len, "%" PRIu64, bits);
 
 	return buf;
 }
