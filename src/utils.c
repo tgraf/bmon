@@ -123,7 +123,7 @@ void update_timestamp(timestamp_t *dst)
 void copy_timestamp(timestamp_t *ts1, timestamp_t *ts2)
 {
 	ts1->tv_sec = ts2->tv_sec;
-	ts2->tv_usec = ts2->tv_usec;
+	ts1->tv_usec = ts2->tv_usec;
 }
 
 float timestamp_diff(timestamp_t *t1, timestamp_t *t2)
