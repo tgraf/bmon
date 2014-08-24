@@ -130,7 +130,6 @@ static void __auto_load(struct bmon_module *m)
 int module_set(struct bmon_subsys *ss, const char *name)
 {
 	struct bmon_module *mod;
-	struct list_head *list;
 	LIST_HEAD(tmp_list);
 	module_conf_t *m;
 
