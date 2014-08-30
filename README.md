@@ -10,17 +10,12 @@ interface and a programmable text output for scripting.
 
 ## Changes
 
-### New in 3.4
- * Bugfixes
-   * blank screen with config file
-   * quick-help toggle with '?' in curses
- * Better bmon.conf example
 
-## New in 3.3
- * MacOS X port
- * Only initialize curses module if actually used
- * Assorted bug and spelling fixes
- * Various build fixes
+## New in v3.5
+ * Fixes for all defects identified by coverity
+ * Fix accuracy issue on total rate calculation
+ * Travis-CI support
+ * Various other small bugfixes
 
 ### Usage
 
