@@ -6,4 +6,4 @@ if [ $CC = "clang" ]; then
 	FLAGS="$FLAGS -Wno-error=unused-command-line-argument"
 fi
 
-./autogen.sh && ./configure && make CFLAGS="$FLAGS"
+./autogen.sh && ./configure && make CFLAGS="$FLAGS" && make distcheck
