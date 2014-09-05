@@ -35,9 +35,10 @@ provided via:
 
 ## Copyright
 
-> *Copyright (c) 2001-2014 Thomas Graf <tgraf@suug.ch>
-> Copyright (c) 2013 Red Hat, Inc.*
+> *Copyright (c) 2001-2014 Thomas Graf <tgraf@suug.ch>*
+> *Copyright (c) 2013 Red Hat, Inc.*
 
-Please see the [LICENSE](https://github.com/tgraf/bmon/blob/master/LICENSE)
-file for additional details.
+Please see the [LICENSE.BSD](https://github.com/tgraf/bmon/blob/master/LICENSE.BSD)
+and [LICENSE.MIT](https://github.com/tgraf/bmon/blob/master/LICENSE.MIT) files for
+additional details.
 
