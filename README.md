@@ -8,14 +8,17 @@ statistics and prepare them visually in a human friendly way. It
 features various output methods including an interactive curses user
 interface and a programmable text output for scripting.
 
-## Changes
+## Download
 
+ * [Latest Release](https://github.com/tgraf/bmon/releases/latest)
+ * [Older Releases](https://github.com/tgraf/bmon/releases)
 
-## New in 3.6
 -------------
+## New in 3.6
  * Build fix for uclinux
  * Fix LICENSE links
 
+-------------
 ### Usage
 
 To run bmon in the default curses mode:
