@@ -11,11 +11,10 @@ interface and a programmable text output for scripting.
 ## Changes
 
 
-## New in v3.5
- * Fixes for all defects identified by coverity
- * Fix accuracy issue on total rate calculation
- * Travis-CI support
- * Various other small bugfixes
+## New in 3.6
+-------------
+ * Build fix for uclinux
+ * Fix LICENSE links
 
 ### Usage
 
