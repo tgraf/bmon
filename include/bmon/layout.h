@@ -83,7 +83,7 @@ static int parse_attribute(const char* attr)
 static void add_layout(const char *layout_name, cfg_t *color_cfg)
 {
     const char *fg, *bg, *attr_str = NULL;
-    int size = -1, fg_code, bg_code, attr_mask, layout_idx;
+    int size = -1, fg_code, bg_code, attr_mask, layout_idx = 0;
 
     size = cfg_size(color_cfg, "color_pair");
     fg = cfg_getnstr(color_cfg, "color_pair", 0);
@@ -95,7 +95,7 @@ static void add_layout(const char *layout_name, cfg_t *color_cfg)
     bg_code = parse_color(bg);
     attr_mask = parse_attribute(attr_str);
 
-    fprintf(stderr, "%s:\tfg: %s bg: %s attr: %s\n", layout_name, fg, bg, attr_str);
+    /*fprintf(stderr, "%s:\tfg: %s bg: %s attr: %s\n", layout_name, fg, bg, attr_str);*/
 
     if ((strcasecmp(layout_name, "default") == 0))
         layout_idx = LAYOUT_DEFAULT;

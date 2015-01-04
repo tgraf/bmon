@@ -80,6 +80,30 @@ static cfg_opt_t layout_opts[] = {
     CFG_END()
 };
 
+static cfg_opt_t key_opts[] = {
+	CFG_INT("quit", 'q', CFGF_NONE),            /* open quit menu */
+	CFG_INT("leave", 0x1b, CFGF_NONE),          /* ESC in quit menu */
+	CFG_INT("yes", 'y', CFGF_NONE),             /* yes in quit menu */
+	CFG_INT("no", 'n', CFGF_NONE),              /* no in quit menu */
+	CFG_INT("clear", KEY_CLEAR, CFGF_NONE),     /* clear ?WTF? */
+	CFG_INT("help", '?', CFGF_NONE),            /* open help */
+	CFG_INT("graph_toggle", 'g', CFGF_NONE),    /* toggle graph */
+	CFG_INT("details_toggle",'d', CFGF_NONE),   /* toggle details */
+	CFG_INT("list_toggle", 'L', CFGF_NONE),     /* toggle list */
+	CFG_INT("info_toggle", 'i', CFGF_NONE),     /* toggle info */
+	CFG_INT("history_toggle", 'H', CFGF_NONE),  /* toggle collecting history */
+	CFG_INT("next", KEY_DOWN, CFGF_NONE),       /* next interface */
+	CFG_INT("previous", KEY_UP, CFGF_NONE),     /* privious interface */
+	CFG_INT("left", KEY_LEFT, CFGF_NONE),       /* privious attribute */
+	CFG_INT("right", KEY_RIGHT, CFGF_NONE),     /* next attribute */
+	CFG_INT("group_next", ']', CFGF_NONE),      /* next group */
+	CFG_INT("group_previous", '[', CFGF_NONE),  /* privious group */
+	CFG_INT("increment", '<', CFGF_NONE),       /* decrese number of graphs */
+	CFG_INT("decrement", '>', CFGF_NONE),       /* increse number of graphs */
+	CFG_INT("last", '\t', CFGF_NONE),           /* history select next */
+	CFG_END()
+};
+
 static cfg_opt_t global_opts[] = {
 	CFG_FLOAT("read_interval", 1.0f, CFGF_NONE),
 	CFG_FLOAT("rate_interval", 1.0f, CFGF_NONE),
@@ -99,6 +123,7 @@ static cfg_opt_t global_opts[] = {
 	CFG_SEC("history", history_opts, CFGF_MULTI | CFGF_TITLE),
 	CFG_SEC("element", element_opts, CFGF_MULTI | CFGF_TITLE),
     CFG_SEC("layout", layout_opts, CFGF_MULTI | CFGF_TITLE),
+    CFG_SEC("keys", key_opts, CFGF_MULTI | CFGF_TITLE),
 	CFG_END()
 };
 
@@ -138,6 +163,30 @@ struct layout cfg_layout[] =
 };
 #endif
 #endif
+
+struct key cfg_keys[] =
+{
+	{'q'}, /* open quit menu */
+	{0x1b}, /* ESC in quit menu */
+	{'y'}, /* yes in quit menu */
+	{'n'}, /* no in quit menu */
+	{KEY_CLEAR}, /* clear ?WTF? */
+	{'?'}, /* open help */
+	{'g'}, /* toggle graph */
+	{'d'}, /* toggle details */
+	{'L'}, /* toggle list */
+	{'i'}, /* toggle info */
+	{'H'}, /* toggle collecting history */
+	{KEY_DOWN}, /* next interface */
+	{KEY_UP}, /* privious interface */
+	{KEY_LEFT}, /* privious attribute */
+	{KEY_RIGHT}, /* next attribute */
+	{']'}, /* next group */
+	{'['}, /* privious group */
+	{'<'}, /* decrese number of graphs */
+	{'>'}, /* increse number of graphs */
+	{'\t'} /* history select next */
+};
 
 tv_t * parse_tv(char *data)
 {
@@ -204,7 +253,7 @@ int parse_module_param(const char *data, struct list_head *list)
 	char *current = buf;
 	module_conf_t *m;
 	int n = 0;
-	
+
 	do {
 		next = strchr(current, ',');
 
@@ -267,7 +316,7 @@ static void configfile_read_history(void)
 			def->hd_type = HISTORY_TYPE_64;
 		else
 			quit("Invalid type \'%s\', must be \"(8|16|32|64)bit\""
-			     " in history definition #%d\n", type, i+1);
+				" in history definition #%d\n", type, i+1);
 	}
 }
 
@@ -409,11 +458,11 @@ static void configfile_read_attrs(void)
 
 		if (!unit)
 			quit("Attribute '%s' is missing unit specification\n",
-			     name);
+				name);
 
 		if (!type)
 			quit("Attribute '%s' is missing type specification\n",
-			     name);
+				name);
 
 		if (!(u = unit_lookup(unit)))
 			quit("Unknown unit \'%s\' attribute '%s'\n",
@@ -441,40 +490,155 @@ static void configfile_read_attrs(void)
 
 static void configfile_read_layout_cfg(void)
 {
-    int i, nlayouts;
-    cfg_t *lout;
-    nlayouts = cfg_size(cfg, "layout");
-    fprintf(stderr, "nlayouts: %d\n", nlayouts);
-    for (i = 0; i < nlayouts; i++)
-    {
-        int c, ncolors;
-        const char *name;
-        if (!(lout = cfg_getnsec(cfg, "layout", i)))
-            BUG();
+	int i, nlayouts;
+	cfg_t *lout;
+	nlayouts = cfg_size(cfg, "layout");
+	for (i = 0; i < nlayouts; i++)
+	{
+		int c, ncolors;
+		const char *name;
+		if (!(lout = cfg_getnsec(cfg, "layout", i)))
+			BUG();
 
-        if (!(name = cfg_title(lout)))
-            BUG();
+		if (!(name = cfg_title(lout)))
+			BUG();
 
-        ncolors = cfg_size(lout, "color");
-        if (ncolors > LAYOUT_MAX) {
-            fprintf(stderr, "Warning excceeded maximum number of layouts\n");
-            ncolors = LAYOUT_MAX;
-        }
+		ncolors = cfg_size(lout, "color");
+		if (ncolors > LAYOUT_MAX) {
+			fprintf(stderr, "Warning excceeded maximum number of layouts\n");
+			ncolors = LAYOUT_MAX;
+		}
 
-        for (c = 0; c < ncolors; c++) {
-            const char *color;
-            cfg_t *color_pair;
+		for (c = 0; c < ncolors; c++) {
+			cfg_t *color_pair;
 
-            if (!(color_pair = cfg_getnsec(lout, "color", c)))
-                BUG();
+			if (!(color_pair = cfg_getnsec(lout, "color", c)))
+				BUG();
 
-            if (!(name = cfg_title(color_pair)))
-                BUG();
+			if (!(name = cfg_title(color_pair)))
+				BUG();
 
-            add_layout(name, color_pair);
-        }
-    }
+			add_layout(name, color_pair);
+		}
+	}
 }
+
+static void add_keybinding(const char* action, int binding)
+{
+	int keys_idx = 0, value = -1;
+
+	if ((strcasecmp(action, "quit") == 0)){ /* FIXME -- use a conf block like colors */
+		keys_idx = KEY_QUIT_IDX;
+		value = binding;
+	}
+	else if ((strcasecmp(action, "nono") == 0)) {
+		keys_idx = KEY_LEAVE_IDX;
+		value = binding;
+	}
+	else if ((strcasecmp(action, "yes") == 0)) {
+		keys_idx = KEY_YES_IDX;
+		value = binding;
+	}
+	else if ((strcasecmp(action, "no") == 0)) {
+		keys_idx = KEY_NO_IDX;
+		value = binding;
+	}
+	else if ((strcasecmp(action, "clear") == 0)) {
+		keys_idx = KEY_CLEAR_IDX;
+		value = binding;
+	}
+	else if ((strcasecmp(action, "help") == 0)) {
+		keys_idx = KEY_ASK_IDX;
+		value = binding;
+	}
+	else if ((strcasecmp(action, "graph_toggle") == 0)) {
+		keys_idx = KEY_GRAPH_IDX;
+		value = binding;
+	}
+	else if ((strcasecmp(action, "details_toggle") == 0)) {
+		keys_idx = KEY_DETAILS_IDX;
+		value = binding;
+	}
+	else if ((strcasecmp(action, "lists_toggle") == 0)) {
+		keys_idx = KEY_LIST_IDX;
+		value = binding;
+	}
+	else if ((strcasecmp(action, "info_toggle") == 0)) {
+		keys_idx = KEY_INFO_IDX;
+		value = binding;
+	}
+	else if ((strcasecmp(action, "history_toggle") == 0)) {
+		keys_idx = KEY_HISTORY_IDX;
+		value = binding;
+	}
+	else if ((strcasecmp(action, "next") == 0)) {
+		keys_idx = KEY_DOWN_IDX;
+		value = binding;
+	}
+	else if ((strcasecmp(action, "previous") == 0)) {
+		keys_idx = KEY_UP_IDX;
+		value = binding;
+	}
+	else if ((strcasecmp(action, "left") == 0)) {
+		keys_idx = KEY_LEFT_IDX;
+		value = binding;
+	}
+	else if ((strcasecmp(action, "right") == 0)) {
+		keys_idx = KEY_RIGHT_IDX;
+		value = binding;
+	}
+	else if ((strcasecmp(action, "group_next") == 0)) {
+		keys_idx = KEY_GROUP_NXT_IDX;
+		value = binding;
+	}
+	else if ((strcasecmp(action, "group_previous") == 0)) {
+		keys_idx = KEY_GROUP_PRV_IDX;
+		value = binding;
+	}
+	else if ((strcasecmp(action, "increment") == 0)) {
+		keys_idx = KEY_INC_IDX;
+		value = binding;
+	}
+	else if ((strcasecmp(action, "decrement") == 0)) {
+		keys_idx = KEY_DEC_IDX;
+		value = binding;
+	}
+	else if ((strcasecmp(action, "last") == 0)) {
+		keys_idx = KEY_TAB_IDX;
+		value = binding;
+	}
+	else {
+		fprintf(stderr, "Error no valid keybinding given\n");
+		/* TODO: useful error handling */
+	}
+
+	struct key k = { value };
+	cfg_keys[keys_idx] = k;
+}
+
+/* FIXME -- !!! */
+static void configfile_read_key_cfg(void)
+{
+	int i, nkeys;
+	const char* name;
+	int binding = 0;
+	cfg_t *key;
+	nkeys = cfg_size(cfg, "keys");
+	for (i = 0; i < nkeys; i++) {
+		if (!(key = cfg_getnsec(cfg, "keys", i)))
+			BUG();
+
+		if (!(name = cfg_title(key)))
+			BUG();
+
+		binding = cfg_getint(key, "next");
+		struct key k = {binding};
+		cfg_keys[KEY_DOWN_IDX] = k;
+
+		/*add_keybinding(name, binding);*/
+	}
+}
+
 
 static void conf_read(const char *path, int must)
 {
@@ -485,7 +649,7 @@ static void conf_read(const char *path, int must)
 	if (access(path, R_OK) != 0) {
 		if (must)
 			quit("Error: Unable to read configfile \"%s\": %s\n",
-			     path, strerror(errno));
+				path, strerror(errno));
 		else
 			return;
 	}
@@ -493,10 +657,10 @@ static void conf_read(const char *path, int must)
 	err = cfg_parse(cfg, path);
 	if (err == CFG_FILE_ERROR) {
 		quit("Error while reading configfile \"%s\": %s\n",
-		     path, strerror(errno));
+			path, strerror(errno));
 	} else if (err == CFG_PARSE_ERROR) {
 		quit("Error while reading configfile \"%s\": parse error\n",
-		     path);
+			path);
 	}
 
 	configfile_read_units();
@@ -504,6 +668,7 @@ static void conf_read(const char *path, int must)
 	configfile_read_attrs();
 	configfile_read_element_cfg();
     configfile_read_layout_cfg();
+    configfile_read_key_cfg();
 }
 
 static const char default_config[] = \
@@ -610,11 +775,11 @@ void configfile_read(void)
 		conf_read(configfile, 1);
 	else {
 		conf_read(SYSCONFDIR "/bmon.conf", 0);
-		
+
 		if (getenv("HOME")) {
 			char path[FILENAME_MAX+1];
 			snprintf(path, sizeof(path), "%s/.bmonrc",
-				 getenv("HOME"));
+				getenv("HOME"));
 			conf_read(path, 0);
 		}
 	}

@@ -1047,7 +1047,7 @@ static void curses_draw(void)
 {
 	row = 0;
 	move(0,0);
-	
+
 	getmaxyx(stdscr, rows, cols);
 
 	if (rows < 4) {
@@ -1096,129 +1096,119 @@ out:
 
 static int handle_input(int ch)
 {
-	switch (ch) 
-	{
-		case 'q':
-			if (print_help)
-				print_help = 0;
-			else
-				quit_mode = quit_mode ? 0 : 1;
-			return 1;
-
-		case 0x1b:
-			quit_mode = 0;
+	if (ch == cfg_keys[KEY_QUIT_IDX].val) {
+		if (print_help)
 			print_help = 0;
-			return 1;
-
-		case 'y':
-			if (quit_mode)
-				exit(0);
-			break;
-
-		case 'n':
-			if (quit_mode)
-				quit_mode = 0;
-			return 1;
-
-		case 12:
-		case KEY_CLEAR:
-#ifdef HAVE_REDRAWWIN
-			redrawwin(stdscr);
-#endif
-			clear();
-			return 1;
-
-		case '?':
-			clear();
-			print_help = 1;
-			return 1;
-
-		case KEY_TOGGLE_GRAPH:
-			c_show_graph = !c_show_graph;
-			if (c_show_graph && !c_ngraph)
-				c_ngraph = 1;
-			return 1;
-
-		case KEY_TOGGLE_DETAILS:
-			c_show_details = !c_show_details;
-			return 1;
-
-		case KEY_TOGGLE_LIST:
-			c_show_list = !c_show_list;
-			return 1;
-
-		case KEY_TOGGLE_INFO:
-			c_show_info = !c_show_info;
-			return 1;
-
-		case KEY_COLLECT_HISTORY:
-			if (current_attr) {
-				attr_start_collecting_history(current_attr);
-				return 1;
-			}
-			break;
-
-		case KEY_PPAGE:
-			{
-				int i;
-				for (i = 1; i < list_length; i++)
-					element_select_prev();
-			}
-			return 1;
-
-		case KEY_NPAGE:
-			{
-				int i;
-				for (i = 1; i < list_length; i++)
-					element_select_next();
-			}
-			return 1;
-
-		case 'j':
-		case KEY_DOWN:
-			element_select_next();
-			return 1;
-
-		case 'k':
-		case KEY_UP:
-			element_select_prev();
-			return 1;
-
-		case 'h':
-		case KEY_LEFT:
-			attr_select_prev();
-			return 1;
-
-		case 'l':
-		case KEY_RIGHT:
-			attr_select_next();
-			return 1;
-
-		case ']':
-			group_select_next();
-			return 1;
-
-		case '[':
-			group_select_prev();
-			return 1;
-
-		case '<':
-			c_ngraph--;
-			if (c_ngraph <= 1)
-				c_ngraph = 1;
-			return 1;
-
-		case '>':
-			c_ngraph++;
-			if (c_ngraph > 32)
-				c_ngraph = 32;
-			return 1;
-
-		case '\t':
-			history_select_next();
-			return 1;
+		else
+			quit_mode = quit_mode ? 0 : 1;
+		return 1;
 	}
-
+	else if (ch == cfg_keys[KEY_LEAVE_IDX].val) {
+		quit_mode = 0;
+		print_help = 0;
+		return 1;
+	}
+	else if (ch == cfg_keys[KEY_YES_IDX].val) {
+		if (quit_mode)
+			exit(0);
+		return 1;
+	}
+	else if (ch == cfg_keys[KEY_NO_IDX].val) {
+		if (quit_mode)
+			quit_mode = 0;
+		return 1;
+	}
+	else if (ch == 12 || ch == KEY_CLEAR || ch == cfg_keys[KEY_CLEAR_IDX].val ) {
+#ifdef HAVE_REDRAWWIN
+		redrawwin(stdscr);
+#endif
+		clear();
+		return 1;
+	}
+	else if (ch == cfg_keys[KEY_ASK_IDX].val) {
+		clear();
+		print_help = 1;
+		return 1;
+	}
+	else if (ch == cfg_keys[KEY_GRAPH_IDX].val) {
+		c_show_graph = !c_show_graph;
+		if (c_show_graph && !c_ngraph)
+			c_ngraph = 1;
+		return 1;
+	}
+	else if (ch == cfg_keys[KEY_DETAILS_IDX].val) {
+		c_show_details = !c_show_details;
+		return 1;
+	}
+	else if (ch == cfg_keys[KEY_LIST_IDX].val) {
+		c_show_list = !c_show_list;
+		return 1;
+	}
+	else if (ch == cfg_keys[KEY_INFO_IDX].val) {
+		c_show_info = !c_show_info;
+		return 1;
+	}
+	else if (ch == cfg_keys[KEY_HISTORY_IDX].val) {
+		if (current_attr) {
+			attr_start_collecting_history(current_attr);
+			return 1;
+		}
+	}
+	else if (ch == KEY_PPAGE) {
+		int i;
+		for (i = 1; i < list_length; i++)
+			element_select_prev();
+		return 1;
+	}
+	else if (ch == KEY_NPAGE) {
+		int i;
+		for (i = 1; i < list_length; i++)
+			element_select_next();
+		return 1;
+	}
+	else if (ch == cfg_keys[KEY_DOWN_IDX].val) {
+		element_select_next();
+		return 1;
+	}
+	else if (ch == cfg_keys[KEY_UP_IDX].val) {
+		element_select_prev();
+		return 1;
+	}
+	else if (ch == cfg_keys[KEY_LEFT_IDX].val) {
+		attr_select_prev();
+		return 1;
+	}
+	else if (ch == cfg_keys[KEY_RIGHT_IDX].val) {
+		attr_select_next();
+		return 1;
+	}
+	else if (ch == cfg_keys[KEY_GROUP_NXT_IDX].val) {
+		group_select_next();
+		return 1;
+	}
+	else if (ch == cfg_keys[KEY_GROUP_PRV_IDX].val) {
+		group_select_prev();
+		return 1;
+	}
+	else if (ch == cfg_keys[KEY_INC_IDX].val) {
+		c_ngraph--;
+		if (c_ngraph <= 1)
+			c_ngraph = 1;
+		return 1;
+	}
+	else if (ch == cfg_keys[KEY_DEC_IDX].val) {
+		c_ngraph++;
+		if (c_ngraph > 32)
+			c_ngraph = 32;
+		return 1;
+	}
+	else if (ch == cfg_keys[KEY_TAB_IDX].val) {
+		history_select_next();
+		return 1;
+	}
+	else {
+		fprintf(stderr, "WHAAAAAAAAAAAAAAAA!");
+	}
 	return 0;
 }
 

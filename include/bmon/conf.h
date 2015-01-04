@@ -74,9 +74,33 @@ enum {
 	LAYOUT_HEADER,
 	LAYOUT_LIST,
 	LAYOUT_SELECTED,
-    LAYOUT_RX_GRAPH,
-    LAYOUT_TX_GRAPH,
+	LAYOUT_RX_GRAPH,
+	LAYOUT_TX_GRAPH,
 	__LAYOUT_MAX
+};
+
+enum {
+	KEY_QUIT_IDX,
+	KEY_LEAVE_IDX,
+	KEY_YES_IDX,
+	KEY_NO_IDX,
+	KEY_CLEAR_IDX,
+	KEY_ASK_IDX,
+	KEY_GRAPH_IDX,
+	KEY_DETAILS_IDX,
+	KEY_LIST_IDX,
+	KEY_INFO_IDX,
+	KEY_HISTORY_IDX,
+	KEY_DOWN_IDX,
+	KEY_UP_IDX,
+	KEY_LEFT_IDX,
+	KEY_RIGHT_IDX,
+	KEY_GROUP_NXT_IDX,
+	KEY_GROUP_PRV_IDX,
+	KEY_INC_IDX,
+	KEY_DEC_IDX,
+	KEY_TAB_IDX,
+	__KEY_MAX
 };
 
 #define LAYOUT_MAX (__LAYOUT_MAX - 1)
@@ -87,7 +111,12 @@ struct layout
 		l_bg,
 		l_attr;
 };
-
 extern struct layout cfg_layout[];
+
+struct key
+{
+    int val;
+};
+extern struct key cfg_keys[];
 
 #endif
