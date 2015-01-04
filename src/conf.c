@@ -523,119 +523,104 @@ static void configfile_read_layout_cfg(void)
 	}
 }
 
-static void add_keybinding(const char* action, int binding)
-{
-	int keys_idx = 0, value = -1;
-
-	if ((strcasecmp(action, "quit") == 0)){ /* FIXME -- use a conf block like colors */
-		keys_idx = KEY_QUIT_IDX;
-		value = binding;
-	}
-	else if ((strcasecmp(action, "nono") == 0)) {
-		keys_idx = KEY_LEAVE_IDX;
-		value = binding;
-	}
-	else if ((strcasecmp(action, "yes") == 0)) {
-		keys_idx = KEY_YES_IDX;
-		value = binding;
-	}
-	else if ((strcasecmp(action, "no") == 0)) {
-		keys_idx = KEY_NO_IDX;
-		value = binding;
-	}
-	else if ((strcasecmp(action, "clear") == 0)) {
-		keys_idx = KEY_CLEAR_IDX;
-		value = binding;
-	}
-	else if ((strcasecmp(action, "help") == 0)) {
-		keys_idx = KEY_ASK_IDX;
-		value = binding;
-	}
-	else if ((strcasecmp(action, "graph_toggle") == 0)) {
-		keys_idx = KEY_GRAPH_IDX;
-		value = binding;
-	}
-	else if ((strcasecmp(action, "details_toggle") == 0)) {
-		keys_idx = KEY_DETAILS_IDX;
-		value = binding;
-	}
-	else if ((strcasecmp(action, "lists_toggle") == 0)) {
-		keys_idx = KEY_LIST_IDX;
-		value = binding;
-	}
-	else if ((strcasecmp(action, "info_toggle") == 0)) {
-		keys_idx = KEY_INFO_IDX;
-		value = binding;
-	}
-	else if ((strcasecmp(action, "history_toggle") == 0)) {
-		keys_idx = KEY_HISTORY_IDX;
-		value = binding;
-	}
-	else if ((strcasecmp(action, "next") == 0)) {
-		keys_idx = KEY_DOWN_IDX;
-		value = binding;
-	}
-	else if ((strcasecmp(action, "previous") == 0)) {
-		keys_idx = KEY_UP_IDX;
-		value = binding;
-	}
-	else if ((strcasecmp(action, "left") == 0)) {
-		keys_idx = KEY_LEFT_IDX;
-		value = binding;
-	}
-	else if ((strcasecmp(action, "right") == 0)) {
-		keys_idx = KEY_RIGHT_IDX;
-		value = binding;
-	}
-	else if ((strcasecmp(action, "group_next") == 0)) {
-		keys_idx = KEY_GROUP_NXT_IDX;
-		value = binding;
-	}
-	else if ((strcasecmp(action, "group_previous") == 0)) {
-		keys_idx = KEY_GROUP_PRV_IDX;
-		value = binding;
-	}
-	else if ((strcasecmp(action, "increment") == 0)) {
-		keys_idx = KEY_INC_IDX;
-		value = binding;
-	}
-	else if ((strcasecmp(action, "decrement") == 0)) {
-		keys_idx = KEY_DEC_IDX;
-		value = binding;
-	}
-	else if ((strcasecmp(action, "last") == 0)) {
-		keys_idx = KEY_TAB_IDX;
-		value = binding;
-	}
-	else {
-		fprintf(stderr, "Error no valid keybinding given\n");
-		/* TODO: useful error handling */
-	}
-
-	struct key k = { value };
-	cfg_keys[keys_idx] = k;
-}
-
-/* FIXME -- !!! */
 static void configfile_read_key_cfg(void)
 {
 	int i, nkeys;
-	const char* name;
 	int binding = 0;
+    struct key k;
 	cfg_t *key;
 	nkeys = cfg_size(cfg, "keys");
 	for (i = 0; i < nkeys; i++) {
 		if (!(key = cfg_getnsec(cfg, "keys", i)))
 			BUG();
 
-		if (!(name = cfg_title(key)))
-			BUG();
+		binding = cfg_getint(key, "quit");
+		k.val = binding;
+		cfg_keys[KEY_QUIT_IDX] = k;
+
+		binding = cfg_getint(key, "leave");
+		k.val = binding;
+		cfg_keys[KEY_LEAVE_IDX] = k;
+
+		binding = cfg_getint(key, "yes");
+		k.val = binding;
+		cfg_keys[KEY_YES_IDX] = k;
+
+		binding = cfg_getint(key, "no");
+		k.val = binding;
+		cfg_keys[KEY_NO_IDX] = k;
+
+		binding = cfg_getint(key, "clear");
+		k.val = binding;
+		cfg_keys[KEY_CLEAR_IDX] = k;
+
+		binding = cfg_getint(key, "help");
+		k.val = binding;
+		cfg_keys[KEY_ASK_IDX] = k;
+
+		binding = cfg_getint(key, "graph_toggle");
+		k.val = binding;
+		cfg_keys[KEY_GRAPH_IDX] = k;
+
+		binding = cfg_getint(key, "graph_toggle");
+		k.val = binding;
+		cfg_keys[KEY_GRAPH_IDX] = k;
+
+		binding = cfg_getint(key, "details_toggle");
+		k.val = binding;
+		cfg_keys[KEY_DETAILS_IDX] = k;
+
+		binding = cfg_getint(key, "list_toggle");
+		k.val = binding;
+		cfg_keys[KEY_LIST_IDX] = k;
+
+		binding = cfg_getint(key, "info_toggle");
+		k.val = binding;
+		cfg_keys[KEY_INFO_IDX] = k;
+
+		binding = cfg_getint(key, "history_toggle");
+		k.val = binding;
+		cfg_keys[KEY_HISTORY_IDX] = k;
 
 		binding = cfg_getint(key, "next");
-		struct key k = {binding};
+		k.val = binding;
 		cfg_keys[KEY_DOWN_IDX] = k;
 
-		/*add_keybinding(name, binding);*/
+		binding = cfg_getint(key, "previous");
+		k.val = binding;
+		cfg_keys[KEY_UP_IDX] = k;
+
+		binding = cfg_getint(key, "left");
+		k.val = binding;
+		cfg_keys[KEY_LEFT_IDX] = k;
+
+		binding = cfg_getint(key, "left");
+		k.val = binding;
+		cfg_keys[KEY_LEFT_IDX] = k;
+
+		binding = cfg_getint(key, "right");
+		k.val = binding;
+		cfg_keys[KEY_RIGHT_IDX] = k;
+
+		binding = cfg_getint(key, "group_next");
+		k.val = binding;
+		cfg_keys[KEY_GROUP_NXT_IDX] = k;
+
+		binding = cfg_getint(key, "group_previous");
+		k.val = binding;
+		cfg_keys[KEY_GROUP_PRV_IDX] = k;
+
+		binding = cfg_getint(key, "increment");
+		k.val = binding;
+		cfg_keys[KEY_INC_IDX] = k;
+
+		binding = cfg_getint(key, "decrement");
+		k.val = binding;
+		cfg_keys[KEY_DEC_IDX] = k;
+
+		binding = cfg_getint(key, "last");
+		struct key k = {binding};
+		cfg_keys[KEY_TAB_IDX] = k;
 	}
 }
 

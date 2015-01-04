@@ -199,13 +199,13 @@ static int curses_init(void)
 	}
 
 	initialized = 1;
-	
+
 	if (!has_colors())
 		c_use_colors = 0;
 
 	if (c_use_colors) {
 		int i;
-		
+
 		start_color();
 
 #if defined HAVE_USE_DEFAULT_COLORS
@@ -214,7 +214,7 @@ static int curses_init(void)
 		for (i = 1; i < LAYOUT_MAX+1; i++)
 			init_pair(i, cfg_layout[i].l_fg, cfg_layout[i].l_bg);
 	}
-		
+
 	keypad(stdscr, TRUE);
 	nonl();
 	cbreak();
@@ -351,7 +351,7 @@ static void draw_help(void)
 
 	mvaddch(y  - 1, x - 1, ACS_ULCORNER);
 	mvaddch(y + HH, x - 1, ACS_LLCORNER);
-	
+
 	mvaddch(y  - 1, x + HW, ACS_URCORNER);
 	mvaddch(y + HH, x + HW, ACS_LRCORNER);
 
@@ -441,7 +441,7 @@ static void draw_statusbar(void)
 
 	asctime_r(localtime(&t), s);
 	s[strlen(s) - 1] = '\0';
-	
+
 	row = rows-1;
 	move(row, 0);
 	put_line(" %s", s);
@@ -514,7 +514,7 @@ static void count_element_lines(struct element_group *g, struct element *e,
 
 	if (e == current_element)
 		selection_offset = *lines;
-	
+
 	(*lines)++;
 }
 
@@ -627,10 +627,10 @@ static void draw_element(struct element_group *g, struct element *e,
 
 		draw_attr(rx1, rx1prec, rxu1, rx2, rx2prec, rxu2,
 			  e->e_rx_usage, LIST_COL_1);
-	
+
 		draw_attr(tx1, tx1prec, txu1, tx2, tx2prec, txu2,
 			  e->e_tx_usage, LIST_COL_2);
-		
+
 	}
 
 	(*line)++;
@@ -1206,9 +1206,7 @@ static int handle_input(int ch)
 		history_select_next();
 		return 1;
 	}
-	else {
-		fprintf(stderr, "WHAAAAAAAAAAAAAAAA!");
-	}
+	else { /* do nothing */ }
 	return 0;
 }
 
