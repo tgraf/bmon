@@ -81,26 +81,26 @@ static cfg_opt_t layout_opts[] = {
 };
 
 static cfg_opt_t key_opts[] = {
-	CFG_INT("quit", 'q', CFGF_NONE),            /* open quit menu */
-	CFG_INT("leave", 0x1b, CFGF_NONE),          /* ESC in quit menu */
-	CFG_INT("yes", 'y', CFGF_NONE),             /* yes in quit menu */
-	CFG_INT("no", 'n', CFGF_NONE),              /* no in quit menu */
-	CFG_INT("clear", KEY_CLEAR, CFGF_NONE),     /* clear ?WTF? */
-	CFG_INT("help", '?', CFGF_NONE),            /* open help */
-	CFG_INT("graph_toggle", 'g', CFGF_NONE),    /* toggle graph */
-	CFG_INT("details_toggle",'d', CFGF_NONE),   /* toggle details */
-	CFG_INT("list_toggle", 'L', CFGF_NONE),     /* toggle list */
-	CFG_INT("info_toggle", 'i', CFGF_NONE),     /* toggle info */
-	CFG_INT("history_toggle", 'H', CFGF_NONE),  /* toggle collecting history */
-	CFG_INT("next", KEY_DOWN, CFGF_NONE),       /* next interface */
-	CFG_INT("previous", KEY_UP, CFGF_NONE),     /* privious interface */
-	CFG_INT("left", KEY_LEFT, CFGF_NONE),       /* privious attribute */
-	CFG_INT("right", KEY_RIGHT, CFGF_NONE),     /* next attribute */
-	CFG_INT("group_next", ']', CFGF_NONE),      /* next group */
-	CFG_INT("group_previous", '[', CFGF_NONE),  /* privious group */
-	CFG_INT("increment", '<', CFGF_NONE),       /* decrese number of graphs */
-	CFG_INT("decrement", '>', CFGF_NONE),       /* increse number of graphs */
-	CFG_INT("last", '\t', CFGF_NONE),           /* history select next */
+	CFG_STR("quit",           "", CFGF_NONE), /* open quit menu */
+	CFG_STR("leave",          "", CFGF_NONE), /* ESC in quit menu */
+	CFG_STR("yes",            "", CFGF_NONE), /* yes in quit menu */
+	CFG_STR("no",             "", CFGF_NONE), /* no in quit menu */
+	CFG_STR("clear",          "", CFGF_NONE), /* clear */
+	CFG_STR("help",           "", CFGF_NONE), /* open help */
+	CFG_STR("graph_toggle",   "", CFGF_NONE), /* toggle graph */
+	CFG_STR("details_toggle", "", CFGF_NONE), /* toggle details */
+	CFG_STR("list_toggle",    "", CFGF_NONE), /* toggle list */
+	CFG_STR("info_toggle",    "", CFGF_NONE), /* toggle info */
+	CFG_STR("history_toggle", "", CFGF_NONE), /* toggle collecting history */
+	CFG_STR("next",           "", CFGF_NONE), /* next interface */
+	CFG_STR("previous",       "", CFGF_NONE), /* privious interface */
+	CFG_STR("left",           "", CFGF_NONE), /* privious attribute */
+	CFG_STR("right",          "", CFGF_NONE), /* next attribute */
+	CFG_STR("group_next",     "", CFGF_NONE), /* next group */
+	CFG_STR("group_previous", "", CFGF_NONE), /* privious group */
+	CFG_STR("increment",      "", CFGF_NONE), /* decrese number of graphs */
+	CFG_STR("decrement",      "", CFGF_NONE), /* increse number of graphs */
+	CFG_STR("last",           "", CFGF_NONE), /* history select next */
 	CFG_END()
 };
 
@@ -534,93 +534,137 @@ static void configfile_read_key_cfg(void)
 		if (!(key = cfg_getnsec(cfg, "keys", i)))
 			BUG();
 
-		binding = cfg_getint(key, "quit");
-		k.val = binding;
-		cfg_keys[KEY_QUIT_IDX] = k;
+		binding = cfg_getstr(key, "quit")[0];
+		if (binding) {
+			k.val = binding;
+			cfg_keys[KEY_QUIT_IDX] = k;
+		}
 
-		binding = cfg_getint(key, "leave");
-		k.val = binding;
-		cfg_keys[KEY_LEAVE_IDX] = k;
+		binding = cfg_getstr(key, "leave")[0];
+		if (binding) {
+			k.val = binding;
+			cfg_keys[KEY_LEAVE_IDX] = k;
+		}
 
-		binding = cfg_getint(key, "yes");
-		k.val = binding;
-		cfg_keys[KEY_YES_IDX] = k;
+		binding = cfg_getstr(key, "yes")[0];
+		if (binding) {
+			k.val = binding;
+			cfg_keys[KEY_YES_IDX] = k;
+		}
 
-		binding = cfg_getint(key, "no");
-		k.val = binding;
-		cfg_keys[KEY_NO_IDX] = k;
+		binding = cfg_getstr(key, "no")[0];
+		if (binding) {
+			k.val = binding;
+			cfg_keys[KEY_NO_IDX] = k;
+		}
 
-		binding = cfg_getint(key, "clear");
-		k.val = binding;
-		cfg_keys[KEY_CLEAR_IDX] = k;
+		binding = cfg_getstr(key, "clear")[0];
+		if (binding) {
+			k.val = binding;
+			cfg_keys[KEY_CLEAR_IDX] = k;
+		}
 
-		binding = cfg_getint(key, "help");
-		k.val = binding;
-		cfg_keys[KEY_ASK_IDX] = k;
+		binding = cfg_getstr(key, "help")[0];
+		if (binding) {
+			k.val = binding;
+			cfg_keys[KEY_ASK_IDX] = k;
+		}
 
-		binding = cfg_getint(key, "graph_toggle");
-		k.val = binding;
-		cfg_keys[KEY_GRAPH_IDX] = k;
+		binding = cfg_getstr(key, "graph_toggle")[0];
+		if (binding) {
+			k.val = binding;
+			cfg_keys[KEY_GRAPH_IDX] = k;
+		}
 
-		binding = cfg_getint(key, "graph_toggle");
-		k.val = binding;
-		cfg_keys[KEY_GRAPH_IDX] = k;
+		binding = cfg_getstr(key, "graph_toggle")[0];
+		if (binding) {
+			k.val = binding;
+			cfg_keys[KEY_GRAPH_IDX] = k;
+		}
 
-		binding = cfg_getint(key, "details_toggle");
-		k.val = binding;
-		cfg_keys[KEY_DETAILS_IDX] = k;
+		binding = cfg_getstr(key, "details_toggle")[0];
+		if (binding) {
+			k.val = binding;
+			cfg_keys[KEY_DETAILS_IDX] = k;
+		}
 
-		binding = cfg_getint(key, "list_toggle");
-		k.val = binding;
-		cfg_keys[KEY_LIST_IDX] = k;
+		binding = cfg_getstr(key, "list_toggle")[0];
+		if (binding) {
+			k.val = binding;
+			cfg_keys[KEY_LIST_IDX] = k;
+		}
 
-		binding = cfg_getint(key, "info_toggle");
-		k.val = binding;
-		cfg_keys[KEY_INFO_IDX] = k;
+		binding = cfg_getstr(key, "info_toggle")[0];
+		if (binding) {
+			k.val = binding;
+			cfg_keys[KEY_INFO_IDX] = k;
+		}
 
-		binding = cfg_getint(key, "history_toggle");
-		k.val = binding;
-		cfg_keys[KEY_HISTORY_IDX] = k;
+		binding = cfg_getstr(key, "history_toggle")[0];
+		if (binding) {
+			k.val = binding;
+			cfg_keys[KEY_HISTORY_IDX] = k;
+		}
 
-		binding = cfg_getint(key, "next");
-		k.val = binding;
-		cfg_keys[KEY_DOWN_IDX] = k;
+		binding = cfg_getstr(key, "next")[0];
+		if (binding) {
+			k.val = binding;
+			cfg_keys[KEY_DOWN_IDX] = k;
+		}
 
-		binding = cfg_getint(key, "previous");
-		k.val = binding;
-		cfg_keys[KEY_UP_IDX] = k;
+		binding = cfg_getstr(key, "previous")[0];
+		if (binding) {
+			k.val = binding;
+			cfg_keys[KEY_UP_IDX] = k;
+		}
 
-		binding = cfg_getint(key, "left");
-		k.val = binding;
-		cfg_keys[KEY_LEFT_IDX] = k;
+		binding = cfg_getstr(key, "left")[0];
+		if (binding) {
+			k.val = binding;
+			cfg_keys[KEY_LEFT_IDX] = k;
+		}
 
-		binding = cfg_getint(key, "left");
-		k.val = binding;
-		cfg_keys[KEY_LEFT_IDX] = k;
+		binding = cfg_getstr(key, "left")[0];
+		if (binding) {
+			k.val = binding;
+			cfg_keys[KEY_LEFT_IDX] = k;
+		}
 
-		binding = cfg_getint(key, "right");
-		k.val = binding;
-		cfg_keys[KEY_RIGHT_IDX] = k;
+		binding = cfg_getstr(key, "right")[0];
+		if (binding) {
+			k.val = binding;
+			cfg_keys[KEY_RIGHT_IDX] = k;
+		}
 
-		binding = cfg_getint(key, "group_next");
-		k.val = binding;
-		cfg_keys[KEY_GROUP_NXT_IDX] = k;
+		binding = cfg_getstr(key, "group_next")[0];
+		if (binding) {
+			k.val = binding;
+			cfg_keys[KEY_GROUP_NXT_IDX] = k;
+		}
 
-		binding = cfg_getint(key, "group_previous");
-		k.val = binding;
-		cfg_keys[KEY_GROUP_PRV_IDX] = k;
+		binding = cfg_getstr(key, "group_previous")[0];
+		if (binding) {
+			k.val = binding;
+			cfg_keys[KEY_GROUP_PRV_IDX] = k;
+		}
 
-		binding = cfg_getint(key, "increment");
-		k.val = binding;
-		cfg_keys[KEY_INC_IDX] = k;
+		binding = cfg_getstr(key, "increment")[0];
+		if (binding) {
+			k.val = binding;
+			cfg_keys[KEY_INC_IDX] = k;
+		}
 
-		binding = cfg_getint(key, "decrement");
-		k.val = binding;
-		cfg_keys[KEY_DEC_IDX] = k;
+		binding = cfg_getstr(key, "decrement")[0];
+		if (binding) {
+			k.val = binding;
+			cfg_keys[KEY_DEC_IDX] = k;
+		}
 
-		binding = cfg_getint(key, "last");
-		struct key k = {binding};
-		cfg_keys[KEY_TAB_IDX] = k;
+		binding = cfg_getstr(key, "last")[0];
+		if (binding) {
+			k.val = binding;
+			cfg_keys[KEY_TAB_IDX] = k;
+		}
 	}
 }
 
