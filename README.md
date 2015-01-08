@@ -13,13 +13,16 @@ interface and a programmable text output for scripting.
  * [Latest Release](https://github.com/tgraf/bmon/releases/latest)
  * [Older Releases](https://github.com/tgraf/bmon/releases)
 
-## Debian Installation
+## Debian/Ubuntu Installation
 
 ```
-apt-get install libconfuse-dev libnl-3-dev libnl-route-3-dev
+git clone https://github.com/tgraf/bmon.git
+cd bmon
+apt-get install build-essential make libconfuse-dev libnl-3-dev libnl-route-3-dev
 ./configure
 make
 make install
+bmon
 ```
 
 -------------
