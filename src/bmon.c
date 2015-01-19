@@ -220,7 +220,7 @@ static int parse_args_post(int argc, char *argv[])
 				break;
 
 			case 'a':
-				cfg_setint(cfg, "show_all", 1);
+				cfg_setbool(cfg, "show_all", cfg_true);
 				break;
 
 			case 'U':
