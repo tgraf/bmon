@@ -162,6 +162,7 @@ struct layout cfg_layout[] =
     {COLOR_RED,     COLOR_BLACK,  0},          /* TX graph */
 };
 #endif
+#endif
 
 struct key cfg_keys[] =
 {
