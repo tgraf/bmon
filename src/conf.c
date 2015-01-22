@@ -523,10 +523,44 @@ static void configfile_read_layout_cfg(void)
 	}
 }
 
+static int check_special_key(const char* binding)
+{
+	if ( strcasecmp(binding, "up") == 0) {
+		return KEY_UP;
+	}
+	else if (strcasecmp(binding, "down") == 0) {
+		return KEY_DOWN;
+	}
+	else if (strcasecmp(binding, "left") == 0) {
+		return KEY_LEFT;
+	}
+	else if (strcasecmp(binding, "right") == 0) {
+		return KEY_RIGHT;
+	}
+	else if (strcasecmp(binding, "tab") == 0) {
+		return '\t';
+	}
+	else if (strcasecmp(binding, "clear") == 0) {
+		return KEY_CLEAR;
+	}
+	else if (strcasecmp(binding, "page-up") == 0) {
+		return KEY_PPAGE;
+	}
+	else if (strcasecmp(binding, "page-down") == 0) {
+		return KEY_NPAGE;
+	}
+	else if (strcasecmp(binding, "esc") == 0) {
+		return 0x1b;
+	}
+	else {
+		return binding[0];
+	}
+}
+
 static void configfile_read_key_cfg(void)
 {
 	int i, nkeys;
-	int binding = 0;
+	char* binding = NULL;
     struct key k;
 	cfg_t *key;
 	nkeys = cfg_size(cfg, "keys");
@@ -534,135 +568,135 @@ static void configfile_read_key_cfg(void)
 		if (!(key = cfg_getnsec(cfg, "keys", i)))
 			BUG();
 
-		binding = cfg_getstr(key, "quit")[0];
-		if (binding) {
-			k.val = binding;
+		binding = cfg_getstr(key, "quit");
+		if (strcasecmp(binding, "") != 0) {
+			k.val = check_special_key(binding);
 			cfg_keys[KEY_QUIT_IDX] = k;
 		}
 
-		binding = cfg_getstr(key, "leave")[0];
-		if (binding) {
-			k.val = binding;
+		binding = cfg_getstr(key, "leave");
+		if (strcasecmp(binding, "") != 0) {
+			k.val = check_special_key(binding);
 			cfg_keys[KEY_LEAVE_IDX] = k;
 		}
 
-		binding = cfg_getstr(key, "yes")[0];
-		if (binding) {
-			k.val = binding;
+		binding = cfg_getstr(key, "yes");
+		if (strcasecmp(binding, "") != 0) {
+			k.val = check_special_key(binding);
 			cfg_keys[KEY_YES_IDX] = k;
 		}
 
-		binding = cfg_getstr(key, "no")[0];
-		if (binding) {
-			k.val = binding;
+		binding = cfg_getstr(key, "no");
+		if (strcasecmp(binding, "") != 0) {
+			k.val = check_special_key(binding);
 			cfg_keys[KEY_NO_IDX] = k;
 		}
 
-		binding = cfg_getstr(key, "clear")[0];
-		if (binding) {
-			k.val = binding;
+		binding = cfg_getstr(key, "clear");
+		if (strcasecmp(binding, "") != 0) {
+			k.val = check_special_key(binding);
 			cfg_keys[KEY_CLEAR_IDX] = k;
 		}
 
-		binding = cfg_getstr(key, "help")[0];
-		if (binding) {
-			k.val = binding;
+		binding = cfg_getstr(key, "help");
+		if (strcasecmp(binding, "") != 0) {
+			k.val = check_special_key(binding);
 			cfg_keys[KEY_ASK_IDX] = k;
 		}
 
-		binding = cfg_getstr(key, "graph_toggle")[0];
-		if (binding) {
-			k.val = binding;
+		binding = cfg_getstr(key, "graph_toggle");
+		if (strcasecmp(binding, "") != 0) {
+			k.val = check_special_key(binding);
 			cfg_keys[KEY_GRAPH_IDX] = k;
 		}
 
-		binding = cfg_getstr(key, "graph_toggle")[0];
-		if (binding) {
-			k.val = binding;
+		binding = cfg_getstr(key, "graph_toggle");
+		if (strcasecmp(binding, "") != 0) {
+			k.val = check_special_key(binding);
 			cfg_keys[KEY_GRAPH_IDX] = k;
 		}
 
-		binding = cfg_getstr(key, "details_toggle")[0];
-		if (binding) {
-			k.val = binding;
+		binding = cfg_getstr(key, "details_toggle");
+		if (strcasecmp(binding, "") != 0) {
+			k.val = check_special_key(binding);
 			cfg_keys[KEY_DETAILS_IDX] = k;
 		}
 
-		binding = cfg_getstr(key, "list_toggle")[0];
-		if (binding) {
-			k.val = binding;
+		binding = cfg_getstr(key, "list_toggle");
+		if (strcasecmp(binding, "") != 0) {
+			k.val = check_special_key(binding);
 			cfg_keys[KEY_LIST_IDX] = k;
 		}
 
-		binding = cfg_getstr(key, "info_toggle")[0];
-		if (binding) {
-			k.val = binding;
+		binding = cfg_getstr(key, "info_toggle");
+		if (strcasecmp(binding, "") != 0) {
+			k.val = check_special_key(binding);
 			cfg_keys[KEY_INFO_IDX] = k;
 		}
 
-		binding = cfg_getstr(key, "history_toggle")[0];
-		if (binding) {
-			k.val = binding;
+		binding = cfg_getstr(key, "history_toggle");
+		if (strcasecmp(binding, "") != 0) {
+			k.val = check_special_key(binding);
 			cfg_keys[KEY_HISTORY_IDX] = k;
 		}
 
-		binding = cfg_getstr(key, "next")[0];
-		if (binding) {
-			k.val = binding;
+		binding = cfg_getstr(key, "next");
+		if (strcasecmp(binding, "") != 0) {
+			k.val = check_special_key(binding);
 			cfg_keys[KEY_DOWN_IDX] = k;
 		}
 
-		binding = cfg_getstr(key, "previous")[0];
-		if (binding) {
-			k.val = binding;
+		binding = cfg_getstr(key, "previous");
+		if (strcasecmp(binding, "") != 0) {
+			k.val = check_special_key(binding);
 			cfg_keys[KEY_UP_IDX] = k;
 		}
 
-		binding = cfg_getstr(key, "left")[0];
-		if (binding) {
-			k.val = binding;
+		binding = cfg_getstr(key, "left");
+		if (strcasecmp(binding, "") != 0) {
+			k.val = check_special_key(binding);
 			cfg_keys[KEY_LEFT_IDX] = k;
 		}
 
-		binding = cfg_getstr(key, "left")[0];
-		if (binding) {
-			k.val = binding;
+		binding = cfg_getstr(key, "left");
+		if (strcasecmp(binding, "") != 0) {
+			k.val = check_special_key(binding);
 			cfg_keys[KEY_LEFT_IDX] = k;
 		}
 
-		binding = cfg_getstr(key, "right")[0];
-		if (binding) {
-			k.val = binding;
+		binding = cfg_getstr(key, "right");
+		if (strcasecmp(binding, "") != 0) {
+			k.val = check_special_key(binding);
 			cfg_keys[KEY_RIGHT_IDX] = k;
 		}
 
-		binding = cfg_getstr(key, "group_next")[0];
-		if (binding) {
-			k.val = binding;
+		binding = cfg_getstr(key, "group_next");
+		if (strcasecmp(binding, "") != 0) {
+			k.val = check_special_key(binding);
 			cfg_keys[KEY_GROUP_NXT_IDX] = k;
 		}
 
-		binding = cfg_getstr(key, "group_previous")[0];
-		if (binding) {
-			k.val = binding;
+		binding = cfg_getstr(key, "group_previous");
+		if (strcasecmp(binding, "") != 0) {
+			k.val = check_special_key(binding);
 			cfg_keys[KEY_GROUP_PRV_IDX] = k;
 		}
 
-		binding = cfg_getstr(key, "increment")[0];
-		if (binding) {
-			k.val = binding;
+		binding = cfg_getstr(key, "increment");
+		if (strcasecmp(binding, "") != 0) {
+			k.val = check_special_key(binding);
 			cfg_keys[KEY_INC_IDX] = k;
 		}
 
-		binding = cfg_getstr(key, "decrement")[0];
-		if (binding) {
-			k.val = binding;
+		binding = cfg_getstr(key, "decrement");
+		if (strcasecmp(binding, "") != 0) {
+			k.val = check_special_key(binding);
 			cfg_keys[KEY_DEC_IDX] = k;
 		}
 
-		binding = cfg_getstr(key, "last")[0];
-		if (binding) {
-			k.val = binding;
+		binding = cfg_getstr(key, "last");
+		if (strcasecmp(binding, "") != 0) {
+			k.val = check_special_key(binding);
 			cfg_keys[KEY_TAB_IDX] = k;
 		}
 	}
