@@ -19,6 +19,7 @@ interface and a programmable text output for scripting.
 git clone https://github.com/tgraf/bmon.git
 cd bmon
 apt-get install build-essential make libconfuse-dev libnl-3-dev libnl-route-3-dev libncurses-dev
+./autogen.sh
 ./configure
 make
 make install
