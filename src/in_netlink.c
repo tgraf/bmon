@@ -37,6 +37,8 @@ static int c_notc = 0;
 static struct element_group *grp;
 static struct bmon_module netlink_ops;
 
+#include <linux/if.h>
+
 #include <netlink/netlink.h>
 #include <netlink/cache.h>
 #include <netlink/utils.h>
