@@ -189,8 +189,8 @@ static inline void add_token(int type, char *data)
 		if (out_tokens == NULL)
 			quit("Cannot reallocate out token array\n");
 	}
-		
-		
+
+
 	out_tokens[token_index].ot_type = type;
 	out_tokens[token_index].ot_str = data;
 	token_index++;
@@ -250,7 +250,7 @@ static int format_probe(void)
 			}
 
 			goto out;
-		
+
 finish_escape:
 			*p = '\0';
 			add_token(OT_STRING, s);
@@ -259,7 +259,7 @@ finish_escape:
 			continue;
 		}
 
-out:	
+out:
 		if (new_one) {
 			add_token(OT_STRING, p);
 			new_one = 0;
@@ -328,9 +328,9 @@ static void print_help(void)
 	"    \"$(element:name) $(attr:rxrate:packets) $(attr:txrate:packets)\\n\"\n" \
 	"    eth0 33 5\n" \
 	"\n" \
-	"    \"Element: $(element:name)\\nBytes Rate: \" \\\n" \
-	"        \"$(attr:rxrate:bytes)/$(attr:txrate:bytes)\\nPackets Rate: \" \\\n" \
-	"        \"$(attr:rxrate:packets)/$(attr:txrate:packets)\\n\"\n" \
+	"    \"Item: $(element:name)\\n\" \\\n" \
+	"        \"Bytes Rate: $(attr:rxrate:bytes)/$(attr:txrate:bytes)\\n\" \\\n" \
+	"        \"Packets Rate: $(attr:rxrate:packets)/$(attr:txrate:packets)\\n\"\n" \
 	"    Item: eth0\n" \
 	"    Bytes Rate: 49130/2119\n" \
 	"    Packets Rate: 40/11\n" \
