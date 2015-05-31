@@ -774,6 +774,17 @@ static void netlink_shutdown(void)
 	nl_socket_free(sock);
 }
 
+static void netlink_use_bit(struct attr_map *map, const int size)
+{
+	if(cfg_getbool(cfg, "use_bit")) {
+		for(int i = 0; i < size; ++i) {
+			if(!strcmp(map[i].description, "Bytes")) {
+				map[i].description = "Bits";
+			}
+		}
+	}
+}
+
 static int netlink_do_init(void)
 {
 	int err;
@@ -798,6 +809,8 @@ static int netlink_do_init(void)
 		goto disable;
 	}
 
+	netlink_use_bit(link_attrs, ARRAY_SIZE(link_attrs));
+	netlink_use_bit(tc_attrs, ARRAY_SIZE(tc_attrs));
 	if (attr_map_load(link_attrs, ARRAY_SIZE(link_attrs)) ||
 	    attr_map_load(tc_attrs, ARRAY_SIZE(tc_attrs)))
 		BUG();
@@ -819,17 +832,17 @@ static int netlink_probe(void)
 
 	if (!(sock = nl_socket_alloc()))
 		return 0;
-	
+
 	if (nl_connect(sock, NETLINK_ROUTE) < 0)
 		return 0;
-	
+
 	if (rtnl_link_alloc_cache(sock, AF_UNSPEC, &lc) == 0) {
 		nl_cache_free(lc);
 		ret = 1;
 	}
 
 	nl_socket_free(sock);
-	
+
 	return ret;
 }
 
