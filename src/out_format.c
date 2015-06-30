@@ -119,11 +119,8 @@ static char *get_token(struct element_group *g, struct element *e,
 			goto out;
 		}
 
-		if (!(a = attr_lookup(e, def->ad_id))) {
-			fprintf(stderr, "Unable to find attribute %u (%s)\n",
-				def->ad_id, name);
+		if (!(a = attr_lookup(e, def->ad_id)))
 			goto out;
-		}
 
 		if (!strncasecmp(type, "rx:", 3)) {
 			snprintf(buf, len, "%" PRIu64, a->a_rx_rate.r_total);
