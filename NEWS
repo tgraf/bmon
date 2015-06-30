@@ -1,3 +1,9 @@
+v3.7 - November 22, 2014
+----------------------
+ * Bugfixes
+ * Documentation updates
+ * Provide minimal interface information on BSD
+ 
 v3.6 - November 22, 2014
 ----------------------
  * Build fix for uclinux

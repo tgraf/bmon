@@ -27,9 +27,10 @@ bmon
 ```
 
 -------------
-## New in 3.6
- * Build fix for uclinux
- * Fix LICENSE links
+## New in 3.7
+ * Bugfixes
+ * Documentation updates
+ * Provide minimal interface information on BSD
 
 -------------
 ### Usage
