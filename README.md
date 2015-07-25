@@ -27,10 +27,8 @@ bmon
 ```
 
 -------------
-## New in 3.7
- * Bugfixes
- * Documentation updates
- * Provide minimal interface information on BSD
+## New in 3.8
+ * Don't disable Netlink if TC stats are unavailable
 
 -------------
 ### Usage

@@ -1,3 +1,7 @@
+v3.8 - July 25, 2015
+----------------------
+ * Don't disable Netlink if TC stats are unavailable
+
 v3.7 - November 22, 2014
 ----------------------
  * Bugfixes
