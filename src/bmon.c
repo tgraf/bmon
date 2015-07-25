@@ -120,7 +120,7 @@ void quit(const char *fmt, ...)
 static inline void print_version(void)
 {
 	printf("bmon %s\n", PACKAGE_VERSION);
-	printf("Copyright (C) 2001-2013 by Thomas Graf <tgraf@suug.ch>\n");
+	printf("Copyright (C) 2001-2015 by Thomas Graf <tgraf@suug.ch>\n");
 	printf("Copyright (C) 2013 Red Hat, Inc.\n");
 	printf("bmon comes with ABSOLUTELY NO WARRANTY. This is free " \
 	       "software, and you\nare welcome to redistribute it under " \
