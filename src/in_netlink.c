@@ -738,7 +738,7 @@ static void do_link(struct nl_object *obj, void *arg)
 		attr_update(e, m->attrid, c_rx, c_tx, flags);
 	}
 
-	if (!c_notc)
+	if (!c_notc && qdisc_cache)
 		handle_tc(e, link);
 
 	element_notify_update(e, NULL);
@@ -754,7 +754,8 @@ static void netlink_read(void)
 		goto disable;
 	}
 
-	if ((err = nl_cache_resync(sock, qdisc_cache, NULL, NULL)) < 0) {
+	if (qdisc_cache &&
+	    (err = nl_cache_resync(sock, qdisc_cache, NULL, NULL)) < 0) {
 		fprintf(stderr, "Unable to resync qdisc cache: %s\n", nl_geterror(err));
 		goto disable;
 	}
@@ -805,8 +806,9 @@ static int netlink_do_init(void)
 	}
 
 	if ((err = rtnl_qdisc_alloc_cache(sock, &qdisc_cache)) < 0) {
-		fprintf(stderr, "Unable to allocate qdisc cache: %s\n", nl_geterror(err));
-		goto disable;
+		fprintf(stderr, "Warning: Unable to allocate qdisc cache: %s\n", nl_geterror(err));
+		fprintf(stderr, "Disabling QoS statistics.\n");
+		qdisc_cache = NULL;
 	}
 
 	netlink_use_bit(link_attrs, ARRAY_SIZE(link_attrs));
