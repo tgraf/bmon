@@ -49,6 +49,17 @@ static struct bmon_module netlink_ops;
 #include <netlink/route/classifier.h>
 #include <netlink/route/qdisc/htb.h>
 
+/* These counters are not available prior to libnl 3.2.25. Set them to -1 so
+ * rtnl_link_get_stat() won't be called for them. */
+#if LIBNL_CURRENT < 220
+# define RTNL_LINK_ICMP6_CSUMERRORS	-1
+# define RTNL_LINK_IP6_CSUMERRORS	-1
+# define RTNL_LINK_IP6_NOECTPKTS	-1
+# define RTNL_LINK_IP6_ECT1PKTS		-1
+# define RTNL_LINK_IP6_ECT0PKTS		-1
+# define RTNL_LINK_IP6_CEPKTS		-1
+#endif
+
 static struct attr_map link_attrs[] = {
 {
 	.name		= "bytes",
@@ -283,6 +294,14 @@ static struct attr_map link_attrs[] = {
 	.txid		= RTNL_LINK_ICMP6_OUTERRORS,
 },
 {
+	.name		= "icmp6csumerr",
+	.type		= ATTR_TYPE_COUNTER,
+	.unit		= UNIT_NUMBER,
+	.description	= "ICMPv6 Checksum Errors",
+	.rxid		= RTNL_LINK_ICMP6_CSUMERRORS,
+	.txid		= -1,
+},
+{
 	.name		= "ip6inhdrerr",
 	.type		= ATTR_TYPE_COUNTER,
 	.unit		= UNIT_NUMBER,
@@ -323,6 +342,14 @@ static struct attr_map link_attrs[] = {
 	.txid		= -1,
 },
 {
+	.name		= "ip6csumerr",
+	.type		= ATTR_TYPE_COUNTER,
+	.unit		= UNIT_NUMBER,
+	.description	= "Ip6 Checksum Error",
+	.rxid		= RTNL_LINK_IP6_CSUMERRORS,
+	.txid		= -1,
+},
+{
 	.name		= "ip6reasmtimeo",
 	.type		= ATTR_TYPE_COUNTER,
 	.unit		= UNIT_NUMBER,
@@ -353,6 +380,38 @@ static struct attr_map link_attrs[] = {
 	.description	= "Ip6 Reasm/Frag Requests",
 	.rxid		= RTNL_LINK_IP6_REASMREQDS,
 	.txid		= RTNL_LINK_IP6_FRAGCREATES,
+},
+{
+	.name		= "ip6noectpkts",
+	.type		= ATTR_TYPE_COUNTER,
+	.unit		= UNIT_NUMBER,
+	.description	= "Ip6 Non-ECT Packets",
+	.rxid		= RTNL_LINK_IP6_NOECTPKTS,
+	.txid		= -1,
+},
+{
+	.name		= "ip6ect1pkts",
+	.type		= ATTR_TYPE_COUNTER,
+	.unit		= UNIT_NUMBER,
+	.description	= "Ip6 ECT(1) Packets",
+	.rxid		= RTNL_LINK_IP6_ECT1PKTS,
+	.txid		= -1,
+},
+{
+	.name		= "ip6ect0pkts",
+	.type		= ATTR_TYPE_COUNTER,
+	.unit		= UNIT_NUMBER,
+	.description	= "Ip6 ECT(0) Packets",
+	.rxid		= RTNL_LINK_IP6_ECT0PKTS,
+	.txid		= -1,
+},
+{
+	.name		= "ip6cepkts",
+	.type		= ATTR_TYPE_COUNTER,
+	.unit		= UNIT_NUMBER,
+	.description	= "Ip6 CE Packets",
+	.rxid		= RTNL_LINK_IP6_CEPKTS,
+	.txid		= -1,
 }
 };
 
