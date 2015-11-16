@@ -30,6 +30,7 @@
 #include <bmon/element.h>
 #include <bmon/element_cfg.h>
 #include <bmon/history.h>
+#include <bmon/layout.h>
 #include <bmon/utils.h>
 
 cfg_t *cfg;
@@ -69,6 +70,40 @@ static cfg_opt_t unit_opts[] = {
 	CFG_END()
 };
 
+static cfg_opt_t color_opts[] = {
+    CFG_STR_LIST("color_pair", "", CFGF_NONE),
+    CFG_END()
+};
+
+static cfg_opt_t layout_opts[] = {
+    CFG_SEC("color", color_opts, CFGF_MULTI | CFGF_TITLE),
+    CFG_END()
+};
+
+static cfg_opt_t key_opts[] = {
+	CFG_STR("quit",           "", CFGF_NONE), /* open quit menu */
+	CFG_STR("leave",          "", CFGF_NONE), /* ESC in quit menu */
+	CFG_STR("yes",            "", CFGF_NONE), /* yes in quit menu */
+	CFG_STR("no",             "", CFGF_NONE), /* no in quit menu */
+	CFG_STR("clear",          "", CFGF_NONE), /* clear */
+	CFG_STR("help",           "", CFGF_NONE), /* open help */
+	CFG_STR("graph_toggle",   "", CFGF_NONE), /* toggle graph */
+	CFG_STR("details_toggle", "", CFGF_NONE), /* toggle details */
+	CFG_STR("list_toggle",    "", CFGF_NONE), /* toggle list */
+	CFG_STR("info_toggle",    "", CFGF_NONE), /* toggle info */
+	CFG_STR("history_toggle", "", CFGF_NONE), /* toggle collecting history */
+	CFG_STR("next",           "", CFGF_NONE), /* next interface */
+	CFG_STR("previous",       "", CFGF_NONE), /* privious interface */
+	CFG_STR("left",           "", CFGF_NONE), /* privious attribute */
+	CFG_STR("right",          "", CFGF_NONE), /* next attribute */
+	CFG_STR("group_next",     "", CFGF_NONE), /* next group */
+	CFG_STR("group_previous", "", CFGF_NONE), /* privious group */
+	CFG_STR("increment",      "", CFGF_NONE), /* decrese number of graphs */
+	CFG_STR("decrement",      "", CFGF_NONE), /* increse number of graphs */
+	CFG_STR("last",           "", CFGF_NONE), /* history select next */
+	CFG_END()
+};
+
 static cfg_opt_t global_opts[] = {
 	CFG_FLOAT("read_interval", 1.0f, CFGF_NONE),
 	CFG_FLOAT("rate_interval", 1.0f, CFGF_NONE),
@@ -87,6 +122,8 @@ static cfg_opt_t global_opts[] = {
 	CFG_SEC("attr", attr_opts, CFGF_MULTI | CFGF_TITLE),
 	CFG_SEC("history", history_opts, CFGF_MULTI | CFGF_TITLE),
 	CFG_SEC("element", element_opts, CFGF_MULTI | CFGF_TITLE),
+    CFG_SEC("layout", layout_opts, CFGF_MULTI | CFGF_TITLE),
+    CFG_SEC("keys", key_opts, CFGF_MULTI | CFGF_TITLE),
 	CFG_END()
 };
 
@@ -100,28 +137,56 @@ int			cfg_unit_exp		= DYNAMIC_EXP;
 static char *		configfile		= NULL;
 
 #if defined HAVE_CURSES
-#if defined HAVE_USE_DEFAULT_COLORS
+#ifndef HAVE_USE_DEFAULT_COLORS
 struct layout cfg_layout[] =
 {
-	{-1, -1, 0},                           /* dummy, not used */
-	{-1, -1, 0},                           /* default */
-	{-1, -1, A_REVERSE},                   /* statusbar */
-	{-1, -1, 0},                           /* header */
-	{-1, -1, 0},                           /* list */
-	{-1, -1, A_REVERSE},                   /* selected */
+    {-1, -1, 0},            /* dummy, not used */
+    {-1, -1, 0},            /* default */
+    {-1, -1, A_REVERSE},    /* statusbar */
+    {-1, -1, 0},            /* header */
+    {-1, -1, 0},            /* list */
+    {-1, -1, A_REVERSE},    /* selected */
+    {-1, -1, 0},            /* RX graph */
+    {-1, -1, 0},            /* TX graph */
 };
 #else
 struct layout cfg_layout[] =
 {
-	{0, 0, 0},                              /* dummy, not used */
-	{COLOR_BLACK, COLOR_WHITE, 0},          /* default */
-	{COLOR_BLACK, COLOR_WHITE, A_REVERSE},  /* statusbar */
-	{COLOR_BLACK, COLOR_WHITE, 0},          /* header */
-	{COLOR_BLACK, COLOR_WHITE, 0},          /* list */
-	{COLOR_BLACK, COLOR_WHITE, A_REVERSE},  /* selected */
+    {0, 0, 0},                                 /* dummy, not used */
+    {COLOR_YELLOW,  COLOR_BLACK,  0},          /* default */
+    {COLOR_BLUE,    COLOR_YELLOW, A_REVERSE},  /* statusbar */
+    {COLOR_YELLOW,  COLOR_BLACK,  0},          /* header */
+    {COLOR_WHITE,   COLOR_BLACK,  0},          /* list */
+    {COLOR_MAGENTA, COLOR_BLACK,  0},          /* selected */
+    {COLOR_GREEN,   COLOR_BLACK,  0},          /* RX graph */
+    {COLOR_RED,     COLOR_BLACK,  0},          /* TX graph */
 };
 #endif
 #endif
+
+struct key cfg_keys[] =
+{
+	{'q'}, /* open quit menu */
+	{0x1b}, /* ESC in quit menu */
+	{'y'}, /* yes in quit menu */
+	{'n'}, /* no in quit menu */
+	{KEY_CLEAR}, /* clear ?WTF? */
+	{'?'}, /* open help */
+	{'g'}, /* toggle graph */
+	{'d'}, /* toggle details */
+	{'L'}, /* toggle list */
+	{'i'}, /* toggle info */
+	{'H'}, /* toggle collecting history */
+	{KEY_DOWN}, /* next interface */
+	{KEY_UP}, /* privious interface */
+	{KEY_LEFT}, /* privious attribute */
+	{KEY_RIGHT}, /* next attribute */
+	{']'}, /* next group */
+	{'['}, /* privious group */
+	{'<'}, /* decrese number of graphs */
+	{'>'}, /* increse number of graphs */
+	{'\t'} /* history select next */
+};
 
 tv_t * parse_tv(char *data)
 {
@@ -188,7 +253,7 @@ int parse_module_param(const char *data, struct list_head *list)
 	char *current = buf;
 	module_conf_t *m;
 	int n = 0;
-	
+
 	do {
 		next = strchr(current, ',');
 
@@ -251,7 +316,7 @@ static void configfile_read_history(void)
 			def->hd_type = HISTORY_TYPE_64;
 		else
 			quit("Invalid type \'%s\', must be \"(8|16|32|64)bit\""
-			     " in history definition #%d\n", type, i+1);
+				" in history definition #%d\n", type, i+1);
 	}
 }
 
@@ -393,11 +458,11 @@ static void configfile_read_attrs(void)
 
 		if (!unit)
 			quit("Attribute '%s' is missing unit specification\n",
-			     name);
+				name);
 
 		if (!type)
 			quit("Attribute '%s' is missing type specification\n",
-			     name);
+				name);
 
 		if (!(u = unit_lookup(unit)))
 			quit("Unknown unit \'%s\' attribute '%s'\n",
@@ -423,6 +488,221 @@ static void configfile_read_attrs(void)
 	}
 }
 
+static void configfile_read_layout_cfg(void)
+{
+	int i, nlayouts;
+	cfg_t *lout;
+	nlayouts = cfg_size(cfg, "layout");
+	for (i = 0; i < nlayouts; i++)
+	{
+		int c, ncolors;
+		const char *name;
+		if (!(lout = cfg_getnsec(cfg, "layout", i)))
+			BUG();
+
+		if (!(name = cfg_title(lout)))
+			BUG();
+
+		ncolors = cfg_size(lout, "color");
+		if (ncolors > LAYOUT_MAX) {
+			fprintf(stderr, "Warning excceeded maximum number of layouts\n");
+			ncolors = LAYOUT_MAX;
+		}
+
+		for (c = 0; c < ncolors; c++) {
+			cfg_t *color_pair;
+
+			if (!(color_pair = cfg_getnsec(lout, "color", c)))
+				BUG();
+
+			if (!(name = cfg_title(color_pair)))
+				BUG();
+
+			add_layout(name, color_pair);
+		}
+	}
+}
+
+static int check_special_key(const char* binding)
+{
+	if ( strcasecmp(binding, "up") == 0) {
+		return KEY_UP;
+	}
+	else if (strcasecmp(binding, "down") == 0) {
+		return KEY_DOWN;
+	}
+	else if (strcasecmp(binding, "left") == 0) {
+		return KEY_LEFT;
+	}
+	else if (strcasecmp(binding, "right") == 0) {
+		return KEY_RIGHT;
+	}
+	else if (strcasecmp(binding, "tab") == 0) {
+		return '\t';
+	}
+	else if (strcasecmp(binding, "clear") == 0) {
+		return KEY_CLEAR;
+	}
+	else if (strcasecmp(binding, "page-up") == 0) {
+		return KEY_PPAGE;
+	}
+	else if (strcasecmp(binding, "page-down") == 0) {
+		return KEY_NPAGE;
+	}
+	else if (strcasecmp(binding, "esc") == 0) {
+		return 0x1b;
+	}
+	else {
+		return binding[0];
+	}
+}
+
+static void configfile_read_key_cfg(void)
+{
+	int i, nkeys;
+	char* binding = NULL;
+    struct key k;
+	cfg_t *key;
+	nkeys = cfg_size(cfg, "keys");
+	for (i = 0; i < nkeys; i++) {
+		if (!(key = cfg_getnsec(cfg, "keys", i)))
+			BUG();
+
+		binding = cfg_getstr(key, "quit");
+		if (strcasecmp(binding, "") != 0) {
+			k.val = check_special_key(binding);
+			cfg_keys[KEY_QUIT_IDX] = k;
+		}
+
+		binding = cfg_getstr(key, "leave");
+		if (strcasecmp(binding, "") != 0) {
+			k.val = check_special_key(binding);
+			cfg_keys[KEY_LEAVE_IDX] = k;
+		}
+
+		binding = cfg_getstr(key, "yes");
+		if (strcasecmp(binding, "") != 0) {
+			k.val = check_special_key(binding);
+			cfg_keys[KEY_YES_IDX] = k;
+		}
+
+		binding = cfg_getstr(key, "no");
+		if (strcasecmp(binding, "") != 0) {
+			k.val = check_special_key(binding);
+			cfg_keys[KEY_NO_IDX] = k;
+		}
+
+		binding = cfg_getstr(key, "clear");
+		if (strcasecmp(binding, "") != 0) {
+			k.val = check_special_key(binding);
+			cfg_keys[KEY_CLEAR_IDX] = k;
+		}
+
+		binding = cfg_getstr(key, "help");
+		if (strcasecmp(binding, "") != 0) {
+			k.val = check_special_key(binding);
+			cfg_keys[KEY_ASK_IDX] = k;
+		}
+
+		binding = cfg_getstr(key, "graph_toggle");
+		if (strcasecmp(binding, "") != 0) {
+			k.val = check_special_key(binding);
+			cfg_keys[KEY_GRAPH_IDX] = k;
+		}
+
+		binding = cfg_getstr(key, "graph_toggle");
+		if (strcasecmp(binding, "") != 0) {
+			k.val = check_special_key(binding);
+			cfg_keys[KEY_GRAPH_IDX] = k;
+		}
+
+		binding = cfg_getstr(key, "details_toggle");
+		if (strcasecmp(binding, "") != 0) {
+			k.val = check_special_key(binding);
+			cfg_keys[KEY_DETAILS_IDX] = k;
+		}
+
+		binding = cfg_getstr(key, "list_toggle");
+		if (strcasecmp(binding, "") != 0) {
+			k.val = check_special_key(binding);
+			cfg_keys[KEY_LIST_IDX] = k;
+		}
+
+		binding = cfg_getstr(key, "info_toggle");
+		if (strcasecmp(binding, "") != 0) {
+			k.val = check_special_key(binding);
+			cfg_keys[KEY_INFO_IDX] = k;
+		}
+
+		binding = cfg_getstr(key, "history_toggle");
+		if (strcasecmp(binding, "") != 0) {
+			k.val = check_special_key(binding);
+			cfg_keys[KEY_HISTORY_IDX] = k;
+		}
+
+		binding = cfg_getstr(key, "next");
+		if (strcasecmp(binding, "") != 0) {
+			k.val = check_special_key(binding);
+			cfg_keys[KEY_DOWN_IDX] = k;
+		}
+
+		binding = cfg_getstr(key, "previous");
+		if (strcasecmp(binding, "") != 0) {
+			k.val = check_special_key(binding);
+			cfg_keys[KEY_UP_IDX] = k;
+		}
+
+		binding = cfg_getstr(key, "left");
+		if (strcasecmp(binding, "") != 0) {
+			k.val = check_special_key(binding);
+			cfg_keys[KEY_LEFT_IDX] = k;
+		}
+
+		binding = cfg_getstr(key, "left");
+		if (strcasecmp(binding, "") != 0) {
+			k.val = check_special_key(binding);
+			cfg_keys[KEY_LEFT_IDX] = k;
+		}
+
+		binding = cfg_getstr(key, "right");
+		if (strcasecmp(binding, "") != 0) {
+			k.val = check_special_key(binding);
+			cfg_keys[KEY_RIGHT_IDX] = k;
+		}
+
+		binding = cfg_getstr(key, "group_next");
+		if (strcasecmp(binding, "") != 0) {
+			k.val = check_special_key(binding);
+			cfg_keys[KEY_GROUP_NXT_IDX] = k;
+		}
+
+		binding = cfg_getstr(key, "group_previous");
+		if (strcasecmp(binding, "") != 0) {
+			k.val = check_special_key(binding);
+			cfg_keys[KEY_GROUP_PRV_IDX] = k;
+		}
+
+		binding = cfg_getstr(key, "increment");
+		if (strcasecmp(binding, "") != 0) {
+			k.val = check_special_key(binding);
+			cfg_keys[KEY_INC_IDX] = k;
+		}
+
+		binding = cfg_getstr(key, "decrement");
+		if (strcasecmp(binding, "") != 0) {
+			k.val = check_special_key(binding);
+			cfg_keys[KEY_DEC_IDX] = k;
+		}
+
+		binding = cfg_getstr(key, "last");
+		if (strcasecmp(binding, "") != 0) {
+			k.val = check_special_key(binding);
+			cfg_keys[KEY_TAB_IDX] = k;
+		}
+	}
+}
+
+
 static void conf_read(const char *path, int must)
 {
 	int err;
@@ -432,7 +712,7 @@ static void conf_read(const char *path, int must)
 	if (access(path, R_OK) != 0) {
 		if (must)
 			quit("Error: Unable to read configfile \"%s\": %s\n",
-			     path, strerror(errno));
+				path, strerror(errno));
 		else
 			return;
 	}
@@ -440,16 +720,18 @@ static void conf_read(const char *path, int must)
 	err = cfg_parse(cfg, path);
 	if (err == CFG_FILE_ERROR) {
 		quit("Error while reading configfile \"%s\": %s\n",
-		     path, strerror(errno));
+			path, strerror(errno));
 	} else if (err == CFG_PARSE_ERROR) {
 		quit("Error while reading configfile \"%s\": parse error\n",
-		     path);
+			path);
 	}
 
 	configfile_read_units();
 	configfile_read_history();
 	configfile_read_attrs();
 	configfile_read_element_cfg();
+    configfile_read_layout_cfg();
+    configfile_read_key_cfg();
 }
 
 static const char default_config[] = \
@@ -508,6 +790,29 @@ static const char default_config[] = \
 "history day {" \
 "	interval	= 86400.0" \
 "	size		= 60" \
+"}"
+"layout colors {" \
+"   color default {" \
+"       color_pair = { \"white\", \"black\" }" \
+"   }" \
+"   color statusbar{" \
+"       color_pair = { \"blue\", \"green\", \"reverse\" }" \
+"   }" \
+"   color header {" \
+"       color_pair = { \"green\", \"black\" }" \
+"   }" \
+"   color list {" \
+"       color_pair = { \"white\", \"black\" }" \
+"   }" \
+"   color selected {" \
+"       color_pair = { \"yellow\", \"black\", \"reverse\" }" \
+"   }" \
+"   color rx_graph {" \
+"       color_pair = { \"green\", \"black\" }" \
+"   }" \
+"   color tx_graph {" \
+"       color_pair = { \"red\", \"black\" }" \
+"   }" \
 "}";
 
 static void conf_read_default(void)
@@ -524,6 +829,7 @@ static void conf_read_default(void)
 	configfile_read_history();
 	configfile_read_attrs();
 	configfile_read_element_cfg();
+    configfile_read_layout_cfg();
 }
 
 void configfile_read(void)
@@ -532,11 +838,11 @@ void configfile_read(void)
 		conf_read(configfile, 1);
 	else {
 		conf_read(SYSCONFDIR "/bmon.conf", 0);
-		
+
 		if (getenv("HOME")) {
 			char path[FILENAME_MAX+1];
 			snprintf(path, sizeof(path), "%s/.bmonrc",
-				 getenv("HOME"));
+				getenv("HOME"));
 			conf_read(path, 0);
 		}
 	}

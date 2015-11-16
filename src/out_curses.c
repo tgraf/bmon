@@ -40,11 +40,11 @@ enum {
 };
 
 enum {
-	KEY_TOGGLE_LIST		= 'l',
+	KEY_TOGGLE_LIST		= 'L',
 	KEY_TOGGLE_GRAPH	= 'g',
 	KEY_TOGGLE_DETAILS	= 'd',
 	KEY_TOGGLE_INFO		= 'i',
-	KEY_COLLECT_HISTORY	= 'h',
+	KEY_COLLECT_HISTORY	= 'H',
 };
 
 #define DETAILS_COLS		40
@@ -70,6 +70,11 @@ static int ngraph;
  * selected element. Updated while summing up required lines.
  */
 static unsigned int selection_offset;
+
+/* TODO - use config file */
+/* selection character and attribute */
+static char select_char = '>';
+static int select_char_attr = A_BOLD;
 
 /*
  * Offset in number of lines of the first element to be drawn. Updated
@@ -107,9 +112,9 @@ static int cols;
 static int c_show_graph = 1;
 static int c_ngraph = 1;
 static int c_use_colors = 1;
-static int c_show_details = 0;
+static int c_show_details = 1;
 static int c_show_list = 1;
-static int c_show_info = 0;
+static int c_show_info = 1;
 static int c_list_min = 6;
 
 static struct graph_cfg c_graph_cfg = {
@@ -197,13 +202,13 @@ static int curses_init(void)
 	}
 
 	initialized = 1;
-	
+
 	if (!has_colors())
 		c_use_colors = 0;
 
 	if (c_use_colors) {
 		int i;
-		
+
 		start_color();
 
 #if defined HAVE_USE_DEFAULT_COLORS
@@ -212,7 +217,7 @@ static int curses_init(void)
 		for (i = 1; i < LAYOUT_MAX+1; i++)
 			init_pair(i, cfg_layout[i].l_fg, cfg_layout[i].l_bg);
 	}
-		
+
 	keypad(stdscr, TRUE);
 	nonl();
 	cbreak();
@@ -333,7 +338,7 @@ static void print_message(const char *text)
 
 static void draw_help(void)
 {
-#define HW 46
+#define HW 50
 #define HH 19
 	int i, y = (rows/2) - (HH/2);
 	int x = (cols/2) - (HW/2);
@@ -349,7 +354,7 @@ static void draw_help(void)
 
 	mvaddch(y  - 1, x - 1, ACS_ULCORNER);
 	mvaddch(y + HH, x - 1, ACS_LLCORNER);
-	
+
 	mvaddch(y  - 1, x + HW, ACS_URCORNER);
 	mvaddch(y + HH, x + HW, ACS_LRCORNER);
 
@@ -369,29 +374,29 @@ static void draw_help(void)
 	mvaddnstr(y+ 0, x+1, "Navigation", -1);
 	attroff(A_BOLD | A_UNDERLINE);
 
-	mvaddnstr(y+ 1, x+3, "Up, Down      Previous/Next element", -1);
-	mvaddnstr(y+ 2, x+3, "PgUp, PgDown  Scroll up/down entire page", -1);
-	mvaddnstr(y+ 3, x+3, "Left, Right   Previous/Next attribute", -1);
-	mvaddnstr(y+ 4, x+3, "[, ]          Previous/Next group", -1);
-	mvaddnstr(y+ 5, x+3, "?             Toggle quick reference", -1);
-	mvaddnstr(y+ 6, x+3, "q             Quit bmon", -1);
+	mvaddnstr(y+ 1, x+3, "Up/k, Down/j      Previous/Next element", -1);
+	mvaddnstr(y+ 2, x+3, "PgUp, PgDown      Scroll up/down entire page", -1);
+	mvaddnstr(y+ 3, x+3, "Left/h, Right/l   Previous/Next attribute", -1);
+	mvaddnstr(y+ 4, x+3, "[, ]              Previous/Next group", -1);
+	mvaddnstr(y+ 5, x+3, "?                 Toggle quick reference", -1);
+	mvaddnstr(y+ 6, x+3, "q                 Quit bmon", -1);
 
 	attron(A_BOLD | A_UNDERLINE);
 	mvaddnstr(y+ 8, x+1, "Display Settings", -1);
 	attroff(A_BOLD | A_UNDERLINE);
 
-	mvaddnstr(y+ 9, x+3, "d             Toggle detailed statistics", -1);
-	mvaddnstr(y+10, x+3, "l             Toggle element list", -1);
-	mvaddnstr(y+11, x+3, "i             Toggle additional info", -1);
+	mvaddnstr(y+ 9, x+3, "d                 Toggle detailed statistics", -1);
+	mvaddnstr(y+10, x+3, "L                 Toggle element list", -1);
+	mvaddnstr(y+11, x+3, "i                 Toggle additional info", -1);
 
 	attron(A_BOLD | A_UNDERLINE);
 	mvaddnstr(y+13, x+1, "Graph Settings", -1);
 	attroff(A_BOLD | A_UNDERLINE);
 
-	mvaddnstr(y+14, x+3, "g             Toggle graphical statistics", -1);
-	mvaddnstr(y+15, x+3, "H             Start recording history data", -1);
-	mvaddnstr(y+16, x+3, "TAB           Switch time unit of graph", -1);
-	mvaddnstr(y+17, x+3, "<, >          Change number of graphs", -1);
+	mvaddnstr(y+14, x+3, "g                 Toggle graphical statistics", -1);
+	mvaddnstr(y+15, x+3, "H                 Start recording history data", -1);
+	mvaddnstr(y+16, x+3, "TAB               Switch time unit of graph", -1);
+	mvaddnstr(y+17, x+3, "<, >              Change number of graphs", -1);
 
 	attroff(A_STANDOUT);
 
@@ -419,6 +424,7 @@ static void draw_header(void)
 	move(row, COLS - strlen(PACKAGE_STRING) - 1);
 	put_line("%s", PACKAGE_STRING);
 	move(row, 0);
+	apply_layout(LAYOUT_LIST);
 }
 
 static int lines_required_for_statusbar(void)
@@ -429,17 +435,21 @@ static int lines_required_for_statusbar(void)
 static void draw_statusbar(void)
 {
 	static const char *help_text = "Press ? for help";
-	char s[27];
+    static char hostname[23];
+	char s[80];
 	time_t t = time(0);
+    gethostname(hostname, 23);
 
 	apply_layout(LAYOUT_STATUSBAR);
 
 	asctime_r(localtime(&t), s);
 	s[strlen(s) - 1] = '\0';
-	
+
 	row = rows-1;
 	move(row, 0);
 	put_line(" %s", s);
+    move(row, strlen(s) + 1);
+    put_line(" %s", hostname);
 
 	move(row, COLS - strlen(help_text) - 1);
 	put_line("%s", help_text);
@@ -507,7 +517,7 @@ static void count_element_lines(struct element_group *g, struct element *e,
 
 	if (e == current_element)
 		selection_offset = *lines;
-	
+
 	(*lines)++;
 }
 
@@ -603,9 +613,9 @@ static void draw_element(struct element_group *g, struct element *e,
 		} else if (e == current_element) {
 			apply_layout(LAYOUT_SELECTED);
 			addch(' ');
-			attron(A_BOLD);
-			addch(ACS_RARROW);
-			attroff(A_BOLD);
+			attron(select_char_attr);
+			addch(select_char);
+			attroff(select_char_attr);
 			apply_layout(LAYOUT_LIST);
 		} else if (*line == offset + list_length - 1 &&
 		           *line < (list_req - 1)) {
@@ -620,10 +630,10 @@ static void draw_element(struct element_group *g, struct element *e,
 
 		draw_attr(rx1, rx1prec, rxu1, rx2, rx2prec, rxu2,
 			  e->e_rx_usage, LIST_COL_1);
-	
+
 		draw_attr(tx1, tx1prec, txu1, tx2, tx2prec, txu2,
 			  e->e_tx_usage, LIST_COL_2);
-		
+
 	}
 
 	(*line)++;
@@ -631,6 +641,7 @@ static void draw_element(struct element_group *g, struct element *e,
 
 static void draw_group(struct element_group *g, void *arg)
 {
+	apply_layout(LAYOUT_HEADER);
 	int *line = arg;
 
 	if (line_visible(*line)) {
@@ -677,13 +688,12 @@ static void draw_graph_centered(struct graph *g, int row, int ncol,
 
 	if (hcenter < 9)
 		hcenter = 9;
-
 	mvprintw(row, ncol + hcenter, "%.*s", g->g_cfg.gc_width, text);
 }
 
 static void draw_table(struct graph *g, struct graph_table *tbl,
 		       struct attr *a, struct history *h,
-		       const char *hdr, int ncol)
+		       const char *hdr, int ncol, int layout)
 {
 	int i, save_row;
 	char buf[32];
@@ -708,11 +718,19 @@ static void draw_table(struct graph *g, struct graph_table *tbl,
 	//move(row, ncol + g->g_cfg.gc_width - 3);
 	//put_line("[err %.2f%%]", rtiming.rt_variance.v_error);
 
+    char mybuf[23];
+    memset(buf, 0, 23);
 	for (i = (g->g_cfg.gc_height - 1); i >= 0; i--) {
 		move(++row, ncol);
-		put_line("%'8.2f %s",
-			tbl->gt_scale[i],
-			tbl->gt_table + (i * graph_row_size(&g->g_cfg)));
+        sprintf(mybuf, "%'8.2f ", tbl->gt_scale[i]);
+        addstr(mybuf);
+        /*put_line("%'8.2f ", tbl->gt_scale[i]);*/
+        apply_layout(layout);
+        put_line("%s", tbl->gt_table + (i * graph_row_size(&g->g_cfg)));
+        apply_layout(LAYOUT_LIST);
+		/*put_line("%'8.2f %s",*/
+			/*tbl->gt_scale[i],*/
+			/*tbl->gt_table + (i * graph_row_size(&g->g_cfg)));*/
 	}
 
 	move(++row, ncol);
@@ -727,7 +745,7 @@ static void draw_table(struct graph *g, struct graph_table *tbl,
 
 	if (!h) {
 		const char *t1 = " No history data available. ";
-		const char *t2 = " Press h to start collecting history. ";
+		const char *t2 = " Press H to start collecting history. ";
 		int vcenter = g->g_cfg.gc_height / 2;
 
 		save_row = row;
@@ -746,14 +764,14 @@ static void draw_history_graph(struct attr *a, struct history *h)
 	graph_refill(g, h);
 
 	save_row = row;
-	draw_table(g, &g->g_rx, a, h, "RX", ncol);
+	draw_table(g, &g->g_rx, a, h, "RX", ncol, LAYOUT_RX_GRAPH);
 
 	if (graph_display == GRAPH_DISPLAY_SIDE_BY_SIDE) {
 		ncol = cols / 2;
 		row = save_row;
 	}
 
-	draw_table(g, &g->g_tx, a, h, "TX", ncol);
+	draw_table(g, &g->g_tx, a, h, "TX", ncol, LAYOUT_TX_GRAPH);
 
 	graph_free(g);
 }
@@ -1032,7 +1050,7 @@ static void curses_draw(void)
 {
 	row = 0;
 	move(0,0);
-	
+
 	getmaxyx(stdscr, rows, cols);
 
 	if (rows < 4) {
@@ -1081,125 +1099,117 @@ out:
 
 static int handle_input(int ch)
 {
-	switch (ch) 
-	{
-		case 'q':
-			if (print_help)
-				print_help = 0;
-			else
-				quit_mode = quit_mode ? 0 : 1;
-			return 1;
-
-		case 0x1b:
-			quit_mode = 0;
+	if (ch == cfg_keys[KEY_QUIT_IDX].val) {
+		if (print_help)
 			print_help = 0;
-			return 1;
-
-		case 'y':
-			if (quit_mode)
-				exit(0);
-			break;
-
-		case 'n':
-			if (quit_mode)
-				quit_mode = 0;
-			return 1;
-
-		case 12:
-		case KEY_CLEAR:
-#ifdef HAVE_REDRAWWIN
-			redrawwin(stdscr);
-#endif
-			clear();
-			return 1;
-
-		case '?':
-			clear();
-			print_help = print_help ? 0 : 1;
-			return 1;
-
-		case KEY_TOGGLE_GRAPH:
-			c_show_graph = !c_show_graph;
-			if (c_show_graph && !c_ngraph)
-				c_ngraph = 1;
-			return 1;
-
-		case KEY_TOGGLE_DETAILS:
-			c_show_details = !c_show_details;
-			return 1;
-
-		case KEY_TOGGLE_LIST:
-			c_show_list = !c_show_list;
-			return 1;
-
-		case KEY_TOGGLE_INFO:
-			c_show_info = !c_show_info;
-			return 1;
-
-		case KEY_COLLECT_HISTORY:
-			if (current_attr) {
-				attr_start_collecting_history(current_attr);
-				return 1;
-			}
-			break;
-
-		case KEY_PPAGE:
-			{
-				int i;
-				for (i = 1; i < list_length; i++)
-					element_select_prev();
-			}
-			return 1;
-
-		case KEY_NPAGE:
-			{
-				int i;
-				for (i = 1; i < list_length; i++)
-					element_select_next();
-			}
-			return 1;
-
-		case KEY_DOWN:
-			element_select_next();
-			return 1;
-
-		case KEY_UP:
-			element_select_prev();
-			return 1;
-
-		case KEY_LEFT:
-			attr_select_prev();
-			return 1;
-
-		case KEY_RIGHT:
-			attr_select_next();
-			return 1;
-
-		case ']':
-			group_select_next();
-			return 1;
-
-		case '[':
-			group_select_prev();
-			return 1;
-
-		case '<':
-			c_ngraph--;
-			if (c_ngraph <= 1)
-				c_ngraph = 1;
-			return 1;
-
-		case '>':
-			c_ngraph++;
-			if (c_ngraph > 32)
-				c_ngraph = 32;
-			return 1;
-
-		case '\t':
-			history_select_next();
-			return 1;
+		else
+			quit_mode = quit_mode ? 0 : 1;
+		return 1;
 	}
-
+	else if (ch == cfg_keys[KEY_LEAVE_IDX].val) {
+		quit_mode = 0;
+		print_help = 0;
+		return 1;
+	}
+	else if (ch == cfg_keys[KEY_YES_IDX].val) {
+		if (quit_mode)
+			exit(0);
+		return 1;
+	}
+	else if (ch == cfg_keys[KEY_NO_IDX].val) {
+		if (quit_mode)
+			quit_mode = 0;
+		return 1;
+	}
+	else if (ch == 12 || ch == KEY_CLEAR || ch == cfg_keys[KEY_CLEAR_IDX].val ) {
+#ifdef HAVE_REDRAWWIN
+		redrawwin(stdscr);
+#endif
+		clear();
+		return 1;
+	}
+	else if (ch == cfg_keys[KEY_ASK_IDX].val) {
+		clear();
+		print_help = 1;
+		return 1;
+	}
+	else if (ch == cfg_keys[KEY_GRAPH_IDX].val) {
+		c_show_graph = !c_show_graph;
+		if (c_show_graph && !c_ngraph)
+			c_ngraph = 1;
+		return 1;
+	}
+	else if (ch == cfg_keys[KEY_DETAILS_IDX].val) {
+		c_show_details = !c_show_details;
+		return 1;
+	}
+	else if (ch == cfg_keys[KEY_LIST_IDX].val) {
+		c_show_list = !c_show_list;
+		return 1;
+	}
+	else if (ch == cfg_keys[KEY_INFO_IDX].val) {
+		c_show_info = !c_show_info;
+		return 1;
+	}
+	else if (ch == cfg_keys[KEY_HISTORY_IDX].val) {
+		if (current_attr) {
+			attr_start_collecting_history(current_attr);
+			return 1;
+		}
+	}
+	else if (ch == KEY_PPAGE) {
+		int i;
+		for (i = 1; i < list_length; i++)
+			element_select_prev();
+		return 1;
+	}
+	else if (ch == KEY_NPAGE) {
+		int i;
+		for (i = 1; i < list_length; i++)
+			element_select_next();
+		return 1;
+	}
+	else if (ch == cfg_keys[KEY_DOWN_IDX].val) {
+		element_select_next();
+		return 1;
+	}
+	else if (ch == cfg_keys[KEY_UP_IDX].val) {
+		element_select_prev();
+		return 1;
+	}
+	else if (ch == cfg_keys[KEY_LEFT_IDX].val) {
+		attr_select_prev();
+		return 1;
+	}
+	else if (ch == cfg_keys[KEY_RIGHT_IDX].val) {
+		attr_select_next();
+		return 1;
+	}
+	else if (ch == cfg_keys[KEY_GROUP_NXT_IDX].val) {
+		group_select_next();
+		return 1;
+	}
+	else if (ch == cfg_keys[KEY_GROUP_PRV_IDX].val) {
+		group_select_prev();
+		return 1;
+	}
+	else if (ch == cfg_keys[KEY_INC_IDX].val) {
+		c_ngraph--;
+		if (c_ngraph <= 1)
+			c_ngraph = 1;
+		return 1;
+	}
+	else if (ch == cfg_keys[KEY_DEC_IDX].val) {
+		c_ngraph++;
+		if (c_ngraph > 32)
+			c_ngraph = 32;
+		return 1;
+	}
+	else if (ch == cfg_keys[KEY_TAB_IDX].val) {
+		history_select_next();
+		return 1;
+	}
+	else { /* do nothing */ }
 	return 0;
 }
 
