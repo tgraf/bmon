@@ -33,8 +33,6 @@
 #include <bmon/group.h>
 
 int start_time;
-int do_quit = 0;
-int is_daemon = 0;
 
 struct reader_timing rtiming;
 
@@ -88,14 +86,7 @@ static void do_shutdown(void)
 	}
 }
 
-RETSIGTYPE sig_int(int unused)
-{
-	if (do_quit)
-		exit(-1);
-	do_quit = 1;
-}
-
-void sig_exit(void)
+static void sig_exit(void)
 {
 	do_shutdown();
 }
@@ -361,9 +352,6 @@ int main(int argc, char *argv[])
 				output_post();
 			}
 
-			if (do_quit)
-				exit(0);
-
 			/*
 			 * ST := Configured ST
 			 */
@@ -399,5 +387,4 @@ int main(int argc, char *argv[])
 static void __init bmon_init(void)
 {
 	atexit(&sig_exit);
-	//signal(SIGINT, &sig_int);
 }
