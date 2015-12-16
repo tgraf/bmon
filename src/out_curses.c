@@ -430,7 +430,7 @@ static void draw_statusbar(void)
 {
 	static const char *help_text = "Press ? for help";
 	char s[27];
-	time_t t = time(0);
+	time_t t = time(NULL);
 
 	apply_layout(LAYOUT_STATUSBAR);
 
