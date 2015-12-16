@@ -137,7 +137,7 @@ static void apply_layout(int layout)
 		attrset(cfg_layout[layout].l_attr);
 }
 
-char *float2str(double value, int width, int prec, char *buf, size_t len)
+static char *float2str(double value, int width, int prec, char *buf, size_t len)
 {
 	snprintf(buf, len, "%'*.*f", width, value == 0.0f ? 0 : prec, value);
 
