@@ -545,11 +545,14 @@ static struct element *handle_tc_obj(struct rtnl_tc *tc, const char *prefix,
 	snprintf(name, sizeof(name), "%s %s (%s)",
 		 prefix, buf, rtnl_tc_get_kind(tc));
 
-	if (!(e = element_lookup(grp, name, id, rdata ? rdata->parent : NULL, ELEMENT_CREAT)))
+	if (!rdata || !rdata->parent)
+		BUG();
+
+	if (!(e = element_lookup(grp, name, id, rdata->parent, ELEMENT_CREAT)))
 		return NULL;
 
 	if (e->e_flags & ELEMENT_FLAG_CREATED) {
-		e->e_level = rdata ? rdata->level : 0;
+		e->e_level = rdata->level;
 
 		if (element_set_key_attr(e, "tc_bytes", "tc_packets") ||
 		    element_set_usage_attr(e, "tc_bytes"))
