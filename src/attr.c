@@ -111,7 +111,7 @@ int attr_def_add(const char *name, const char *desc, struct unit *unit,
 	return def->ad_id;
 }
 
-void attr_def_free(struct attr_def *def)
+static void attr_def_free(struct attr_def *def)
 {
 	if (!def)
 		return;

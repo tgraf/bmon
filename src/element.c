@@ -113,8 +113,9 @@ void element_parse_policy(const char *policy)
 	xfree(copy);
 }
 
-struct element *__lookup_element(struct element_group *group, const char *name,
-				 uint32_t id, struct element *parent)
+static struct element *__lookup_element(struct element_group *group,
+					const char *name, uint32_t id,
+					struct element *parent)
 {
 	struct list_head *list;
 	struct element *e;
