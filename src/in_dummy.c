@@ -185,7 +185,7 @@ static void dummy_parse_opt(const char *type, const char *value)
 		c_numdev = strtol(value, NULL, 0);
 	else if (!strcasecmp(type, "randomize")) {
 		c_randomize = 1;
-		srand(time(0));
+		srand(time(NULL));
 	} else if (!strcasecmp(type, "seed") && value)
 		srand(strtol(value, NULL, 0));
 	else if (!strcasecmp(type, "mtu") && value)

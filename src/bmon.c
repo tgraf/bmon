@@ -127,10 +127,10 @@ static void parse_args_pre(int argc, char *argv[])
 		char *gostr = "+:hvVf:";
 
 		struct option long_opts[] = {
-			{"help", 0, 0, 'h'},
-			{"version", 0, 0, 'v'},
-			{"configfile", 1, 0, 'f'},
-			{0, 0, 0, 0},
+			{"help", 0, NULL, 'h'},
+			{"version", 0, NULL, 'v'},
+			{"configfile", 1, NULL, 'f'},
+			{NULL, 0, NULL, 0},
 		};
 		int c = getopt_long(argc, argv, gostr, long_opts, NULL);
 		if (c == -1)
@@ -166,17 +166,17 @@ static int parse_args_post(int argc, char *argv[])
 			      "L:hvVf:";
 
 		struct option long_opts[] = {
-			{"input", 1, 0, 'i'},
-			{"output", 1, 0, 'o'},
-			{"policy", 1, 0, 'p'},
-			{"read-interval", 1, 0, 'r'},
-			{"rate-interval", 1, 0, 'R'},
-			{"sleep-interval", 1, 0, 's'},
-			{"show-all", 0, 0, 'a'},
-			{"use-si", 0, 0, 'U'},
-			{"use-bit", 0, 0, 'b'},
-			{"lifetime", 1, 0, 'L'},
-			{0, 0, 0, 0},
+			{"input", 1, NULL, 'i'},
+			{"output", 1, NULL, 'o'},
+			{"policy", 1, NULL, 'p'},
+			{"read-interval", 1, NULL, 'r'},
+			{"rate-interval", 1, NULL, 'R'},
+			{"sleep-interval", 1, NULL, 's'},
+			{"show-all", 0, NULL, 'a'},
+			{"use-si", 0, NULL, 'U'},
+			{"use-bit", 0, NULL, 'b'},
+			{"lifetime", 1, NULL, 'L'},
+			{NULL, 0, NULL, 0},
 		};
 		int c = getopt_long(argc, argv, gostr, long_opts, NULL);
 		if (c == -1)
@@ -261,7 +261,7 @@ int main(int argc, char *argv[])
 	unsigned long sleep_time;
 	double read_interval;
 	
-	start_time = time(0);
+	start_time = time(NULL);
 	memset(&rtiming, 0, sizeof(rtiming));
 	rtiming.rt_variance.v_min = FLT_MAX;
 
