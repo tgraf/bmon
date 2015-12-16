@@ -491,12 +491,13 @@ static struct attr_map tc_attrs[] = {
 };
 
 struct rdata {
+	struct nl_cache *	class_cache;
 	struct element *	parent;
 	int 			level;
 };
 
 static struct nl_sock *sock;
-static struct nl_cache *link_cache, *qdisc_cache, *class_cache;
+static struct nl_cache *link_cache, *qdisc_cache;
 
 static void update_tc_attrs(struct element *e, struct rtnl_tc *tc)
 {
@@ -531,10 +532,10 @@ static void update_tc_infos(struct element *e, struct rtnl_tc *tc)
 
 static void handle_qdisc(struct nl_object *obj, void *);
 static void find_classes(uint32_t, struct rdata *);
-static void find_qdiscs(uint32_t, struct rdata *);
+static void find_qdiscs(int, uint32_t, struct rdata *);
 
 static struct element *handle_tc_obj(struct rtnl_tc *tc, const char *prefix,
-				     struct rdata *rdata)
+				     const struct rdata *rdata)
 {
 	char buf[IFNAME_MAX], name[IFNAME_MAX];
 	uint32_t id = rtnl_tc_get_handle(tc);
@@ -579,8 +580,9 @@ static void handle_class(struct nl_object *obj, void *arg)
 {
 	struct rtnl_tc *tc = (struct rtnl_tc *) obj;
 	struct element *e;
-	struct rdata *rdata = arg;
+	const struct rdata *rdata = arg;
 	struct rdata ndata = {
+		.class_cache = rdata->class_cache,
 		.level = rdata->level + 1,
 	};
 
@@ -593,10 +595,10 @@ static void handle_class(struct nl_object *obj, void *arg)
 		element_set_txmax(e, rtnl_htb_get_rate((struct rtnl_class *) tc));
 
 	find_classes(rtnl_tc_get_handle(tc), &ndata);
-	find_qdiscs(rtnl_tc_get_handle(tc), &ndata);
+	find_qdiscs(rtnl_tc_get_ifindex(tc), rtnl_tc_get_handle(tc), &ndata);
 }
 
-static void find_qdiscs(uint32_t parent, struct rdata *rdata)
+static void find_qdiscs(int ifindex, uint32_t parent, struct rdata *rdata)
 {
 	struct rtnl_qdisc *filter;
 
@@ -604,6 +606,7 @@ static void find_qdiscs(uint32_t parent, struct rdata *rdata)
 		return;
 
 	rtnl_tc_set_parent((struct rtnl_tc *) filter, parent);
+	rtnl_tc_set_ifindex((struct rtnl_tc *) filter, ifindex);
 
 	nl_cache_foreach_filter(qdisc_cache, OBJ_CAST(filter),
 				handle_qdisc, rdata);
@@ -632,7 +635,7 @@ static void find_classes(uint32_t parent, struct rdata *rdata)
 
 	rtnl_tc_set_parent((struct rtnl_tc *) filter, parent);
 
-	nl_cache_foreach_filter(class_cache, OBJ_CAST(filter),
+	nl_cache_foreach_filter(rdata->class_cache, OBJ_CAST(filter),
 				handle_class, rdata);
 
 	rtnl_class_put(filter);
@@ -642,8 +645,9 @@ static void handle_qdisc(struct nl_object *obj, void *arg)
 {
 	struct rtnl_tc *tc = (struct rtnl_tc *) obj;
 	struct element *e;
-	struct rdata *rdata = arg;
+	const struct rdata *rdata = arg;
 	struct rdata ndata = {
+		.class_cache = rdata->class_cache,
 		.level = rdata->level + 1,
 	};
 
@@ -665,6 +669,7 @@ static void handle_qdisc(struct nl_object *obj, void *arg)
 static void handle_tc(struct element *e, struct rtnl_link *link)
 {
 	struct rtnl_qdisc *qdisc;
+	struct nl_cache *class_cache;
 	int ifindex = rtnl_link_get_ifindex(link);
 	struct rdata rdata = {
 		.level = 1,
@@ -673,6 +678,8 @@ static void handle_tc(struct element *e, struct rtnl_link *link)
 
 	if (rtnl_class_alloc_cache(sock, ifindex, &class_cache) < 0)
 		return;
+
+	rdata.class_cache = class_cache;
 
 	qdisc = rtnl_qdisc_get_by_parent(qdisc_cache, ifindex, TC_H_ROOT);
 	if (qdisc) {
