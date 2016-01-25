@@ -4,6 +4,10 @@ os:
   - linux
   - osx
 
+env:
+  global:
+    - secure: "C87Pgf5AVDoyQfm9MIv81g"
+
 compiler:
   - gcc
   - clang
@@ -18,9 +22,18 @@ addons:
     - libncurses5-dev
     - libnl-3-dev
     - libnl-route-3-dev
+  coverity_scan:
+    project:
+      name: "tgraf/bmon"
+      description: "bandwidth monitor"
+    notification_email: tgraf@suug.ch
+    build_command_prepend: "./autogen.sh && ./configure"
+    build_command: "make -j2"
+    branch_pattern: coverity_scan
 
 
 install:
+  - if [ "$TRAVIS_BRANCH" = "coverity_scan" ] && ! [ "$TRAVIS_OS_NAME" = "linux" -a "$CC" = "gcc" ]; then exit ; fi
   - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew update > /dev/null && brew install confuse ; fi
 
 script:
