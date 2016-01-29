@@ -101,10 +101,10 @@ static void print_attr_detail(struct element *e, struct attr *a, void *arg)
 	char *rx_u, *tx_u;
 	int rxprec, txprec;
 
-	double rx = unit_value2str(a->a_rx_rate.r_total,
+	double rx = unit_value2str(rate_get_total(&a->a_rx_rate),
 				   a->a_def->ad_unit,
 				   &rx_u, &rxprec);
-	double tx = unit_value2str(a->a_tx_rate.r_total,
+	double tx = unit_value2str(rate_get_total(&a->a_tx_rate),
 				   a->a_def->ad_unit,
 				   &tx_u, &txprec);
 

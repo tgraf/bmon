@@ -241,10 +241,10 @@ static void draw_attr_detail(struct element *e, struct attr *a, void *arg)
 	int rxprec, txprec, ncol;
 	struct detail_arg *da = arg;
 
-	double rx = unit_value2str(a->a_rx_rate.r_total,
+	double rx = unit_value2str(rate_get_total(&a->a_rx_rate),
 				   a->a_def->ad_unit,
 				   &rx_u, &rxprec);
-	double tx = unit_value2str(a->a_tx_rate.r_total,
+	double tx = unit_value2str(rate_get_total(&a->a_tx_rate),
 				   a->a_def->ad_unit,
 				   &tx_u, &txprec);
 
@@ -392,6 +392,7 @@ static void draw_help(void)
 	mvaddnstr(y+15, x+3, "H             Start recording history data", -1);
 	mvaddnstr(y+16, x+3, "TAB           Switch time unit of graph", -1);
 	mvaddnstr(y+17, x+3, "<, >          Change number of graphs", -1);
+	mvaddnstr(y+18, x+3, "r             Reset counter of element", -1);
 
 	attroff(A_STANDOUT);
 
@@ -1079,6 +1080,16 @@ out:
 	refresh();
 }
 
+static void __reset_attr_counter(struct element *e, struct attr *a, void *arg)
+{
+	attr_reset_counter(a);
+}
+
+static void reset_counters(void)
+{
+	element_foreach_attr(current_element, __reset_attr_counter, NULL);
+}
+
 static int handle_input(int ch)
 {
 	switch (ch) 
@@ -1197,6 +1208,10 @@ static int handle_input(int ch)
 
 		case '\t':
 			history_select_next();
+			return 1;
+
+		case 'r':
+			reset_counters();
 			return 1;
 	}
 

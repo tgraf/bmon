@@ -123,10 +123,10 @@ static char *get_token(struct element_group *g, struct element *e,
 			goto out;
 
 		if (!strncasecmp(type, "rx:", 3)) {
-			snprintf(buf, len, "%" PRIu64, a->a_rx_rate.r_total);
+			snprintf(buf, len, "%" PRIu64, rate_get_total(&a->a_rx_rate));
 			return buf;
 		} else if (!strncasecmp(type, "tx:", 3)) {
-			snprintf(buf, len, "%" PRIu64, a->a_tx_rate.r_total);
+			snprintf(buf, len, "%" PRIu64, rate_get_total(&a->a_tx_rate));
 			return buf;
 		} else if (!strncasecmp(type, "rxrate:", 7)) {
 			snprintf(buf, len, "%.2f", a->a_rx_rate.r_rate);

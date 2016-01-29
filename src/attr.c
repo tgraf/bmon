@@ -524,6 +524,11 @@ static float __calc_usage(double rate, uint64_t max)
 	return 100.0f / ((double) max / (rate * cfg_rate_interval));
 }
 
+uint64_t rate_get_total(struct rate *r)
+{
+	return r->r_total - r->r_reset;
+}
+
 void attr_calc_usage(struct attr *a, float *rx, float *tx,
 		     uint64_t rxmax, uint64_t txmax)
 {
@@ -623,6 +628,14 @@ void attr_notify_update(struct attr *a, timestamp_t *ts)
 
 		list_for_each_entry(h, &a->a_history_list, h_list)
 			history_update(a, h, ts);
+	}
+}
+
+void attr_reset_counter(struct attr *a)
+{
+	if (a->a_def->ad_type == ATTR_TYPE_COUNTER) {
+		a->a_rx_rate.r_reset = a->a_rx_rate.r_total;
+		a->a_tx_rate.r_reset = a->a_tx_rate.r_total;
 	}
 }
 
