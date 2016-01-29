@@ -62,6 +62,14 @@ AC_CHECK_FUNCS(atexit gettimeofday memset pow socket strcasecmp)
 AC_CHECK_FUNCS(strchr strdup strerror strncasecmp strstr strtol)
 AC_CHECK_FUNCS(uname getdate)
 
+AC_PATH_PROG([PKG_CONFIG], [pkg-config], [no])
+AS_IF([test "x$PKG_CONFIG" = "xno"],[
+   AC_MSG_ERROR([
+      *** The pkg-config script could not be found. Make sure it is
+      *** in your path, or set the PKG_CONFIG environment variable
+      *** to the full path to pkg-config.])
+   ])
+
 AX_WITH_CURSES
 if test "x$ax_cv_curses" != xyes || test "x$ax_cv_curses_color" != xyes; then
         AC_MSG_ERROR([requires an X/Open-compatible Curses library with color])
