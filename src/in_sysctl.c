@@ -226,10 +226,10 @@ sysctl_read(void)
 			attr_update(e, m->attrid, rx, tx, flags);
 		}
 
-		snprintf(info_buf, sizeof(info_buf), "%u", ifm->ifm_data.ifi_mtu);
+		snprintf(info_buf, sizeof(info_buf), "%ju", (uintmax_t)ifm->ifm_data.ifi_mtu);
 		element_update_info(e, "MTU", info_buf);
 
-		snprintf(info_buf, sizeof(info_buf), "%u", ifm->ifm_data.ifi_metric);
+		snprintf(info_buf, sizeof(info_buf), "%ju", (uintmax_t)ifm->ifm_data.ifi_metric);
 		element_update_info(e, "Metric", info_buf);
 
 #ifndef __NetBSD__
