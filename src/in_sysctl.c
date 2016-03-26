@@ -232,11 +232,13 @@ sysctl_read(void)
 		snprintf(info_buf, sizeof(info_buf), "%u", ifm->ifm_data.ifi_metric);
 		element_update_info(e, "Metric", info_buf);
 
+#ifndef __NetBSD__
 		snprintf(info_buf, sizeof(info_buf), "%u", ifm->ifm_data.ifi_recvquota);
 		element_update_info(e, "RX-Quota", info_buf);
 
 		snprintf(info_buf, sizeof(info_buf), "%u", ifm->ifm_data.ifi_xmitquota);
 		element_update_info(e, "TX-Quota", info_buf);
+#endif
 
 		element_notify_update(e, NULL);
 		element_lifesign(e, 1);
