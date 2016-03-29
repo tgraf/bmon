@@ -1257,6 +1257,7 @@ static void print_module_help(void)
 	"    nocolors       Do not use colors\n" \
 	"    graph          Show graphical stats by default\n" \
 	"    details        Show detailed stats by default\n" \
+	"    info           Show additional info screen by default\n" \
 	"    minlist=INT    Minimum item list length\n");
 }
 
@@ -1279,6 +1280,8 @@ static void curses_parse_opt(const char *type, const char *value)
 		c_show_graph = !!c_ngraph;
 	} else if (!strcasecmp(type, "details"))
 		c_show_details = 1;
+	else if (!strcasecmp(type, "info"))
+		c_show_info = 1;
 	else if (!strcasecmp(type, "nocolors"))
 		c_use_colors = 0;
 	else if (!strcasecmp(type, "minlist") && value)
