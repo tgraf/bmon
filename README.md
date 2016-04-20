@@ -26,6 +26,27 @@ make install
 bmon
 ```
 
+## OSX Installation
+Install libconfuse
+```
+wget https://github.com/martinh/libconfuse/releases/download/v2.8/confuse-2.8.zip
+unzip confuse-2.8.zip && cd confuse-2.8
+PATH=/usr/local/opt/gettext/bin:$PATH ./configure
+make
+make install
+```
+
+Install bmon
+```
+git clone https://github.com/tgraf/bmon.git
+cd bmon
+./autogen.sh
+./configure
+make
+make install
+bmon
+```
+
 -------------
 ## New in 3.8
  * Don't disable Netlink if TC stats are unavailable
