@@ -131,9 +131,10 @@ static char *get_token(struct element_group *g, struct element *e,
 		} else if (!strncasecmp(type, "rxrate:", 7)) {
 			snprintf(buf, len, "%.2f", a->a_rx_rate.r_rate);
 			return buf;
-		} else if (!strncasecmp(token+5, "txrate:", 7))
+		} else if (!strncasecmp(type, "txrate:", 7)) {
 			snprintf(buf, len, "%.2f", a->a_tx_rate.r_rate);
 			return buf;
+		}
 	}
 
 	fprintf(stderr, "Unknown field \"%s\"\n", token);
