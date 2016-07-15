@@ -420,6 +420,7 @@ static void draw_header(void)
 	move(row, COLS - strlen(PACKAGE_STRING) - 1);
 	put_line("%s", PACKAGE_STRING);
 	move(row, 0);
+	apply_layout(LAYOUT_LIST);
 }
 
 static int lines_required_for_statusbar(void)
@@ -632,6 +633,7 @@ static void draw_element(struct element_group *g, struct element *e,
 
 static void draw_group(struct element_group *g, void *arg)
 {
+	apply_layout(LAYOUT_HEADER);
 	int *line = arg;
 
 	if (line_visible(*line)) {
@@ -684,7 +686,7 @@ static void draw_graph_centered(struct graph *g, int row, int ncol,
 
 static void draw_table(struct graph *g, struct graph_table *tbl,
 		       struct attr *a, struct history *h,
-		       const char *hdr, int ncol)
+		       const char *hdr, int ncol, int layout)
 {
 	int i, save_row;
 	char buf[32];
@@ -709,11 +711,14 @@ static void draw_table(struct graph *g, struct graph_table *tbl,
 	//move(row, ncol + g->g_cfg.gc_width - 3);
 	//put_line("[err %.2f%%]", rtiming.rt_variance.v_error);
 
+    memset(buf, 0, strlen(buf));
 	for (i = (g->g_cfg.gc_height - 1); i >= 0; i--) {
 		move(++row, ncol);
-		put_line("%'8.2f %s",
-			tbl->gt_scale[i],
-			tbl->gt_table + (i * graph_row_size(&g->g_cfg)));
+        sprintf(buf, "%'8.2f ", tbl->gt_scale[i]);
+        addstr(buf);
+        apply_layout(layout);
+        put_line("%s", tbl->gt_table + (i * graph_row_size(&g->g_cfg)));
+        apply_layout(LAYOUT_LIST);
 	}
 
 	move(++row, ncol);
@@ -747,14 +752,14 @@ static void draw_history_graph(struct attr *a, struct history *h)
 	graph_refill(g, h);
 
 	save_row = row;
-	draw_table(g, &g->g_rx, a, h, "RX", ncol);
+	draw_table(g, &g->g_rx, a, h, "RX", ncol, LAYOUT_RX_GRAPH);
 
 	if (graph_display == GRAPH_DISPLAY_SIDE_BY_SIDE) {
 		ncol = cols / 2;
 		row = save_row;
 	}
 
-	draw_table(g, &g->g_tx, a, h, "TX", ncol);
+	draw_table(g, &g->g_tx, a, h, "TX", ncol, LAYOUT_TX_GRAPH);
 
 	graph_free(g);
 }
