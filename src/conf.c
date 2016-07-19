@@ -30,6 +30,7 @@
 #include <bmon/element.h>
 #include <bmon/element_cfg.h>
 #include <bmon/history.h>
+#include <bmon/layout.h>
 #include <bmon/utils.h>
 
 cfg_t *cfg;
@@ -69,6 +70,16 @@ static cfg_opt_t unit_opts[] = {
 	CFG_END()
 };
 
+static cfg_opt_t color_opts[] = {
+    CFG_STR_LIST("color_pair", "", CFGF_NONE),
+    CFG_END()
+};
+
+static cfg_opt_t layout_opts[] = {
+    CFG_SEC("color", color_opts, CFGF_MULTI | CFGF_TITLE),
+    CFG_END()
+};
+
 static cfg_opt_t global_opts[] = {
 	CFG_FLOAT("read_interval", 1.0f, CFGF_NONE),
 	CFG_FLOAT("rate_interval", 1.0f, CFGF_NONE),
@@ -87,6 +98,7 @@ static cfg_opt_t global_opts[] = {
 	CFG_SEC("attr", attr_opts, CFGF_MULTI | CFGF_TITLE),
 	CFG_SEC("history", history_opts, CFGF_MULTI | CFGF_TITLE),
 	CFG_SEC("element", element_opts, CFGF_MULTI | CFGF_TITLE),
+    CFG_SEC("layout", layout_opts, CFGF_MULTI | CFGF_TITLE),
 	CFG_END()
 };
 
@@ -103,22 +115,26 @@ static char *		configfile		= NULL;
 #if defined HAVE_USE_DEFAULT_COLORS
 struct layout cfg_layout[] =
 {
-	{-1, -1, 0},                           /* dummy, not used */
-	{-1, -1, 0},                           /* default */
-	{-1, -1, A_REVERSE},                   /* statusbar */
-	{-1, -1, 0},                           /* header */
-	{-1, -1, 0},                           /* list */
-	{-1, -1, A_REVERSE},                   /* selected */
+    {-1, -1, 0},            /* dummy, not used */
+    {-1, -1, 0},            /* default */
+    {-1, -1, A_REVERSE},    /* statusbar */
+    {-1, -1, 0},            /* header */
+    {-1, -1, 0},            /* list */
+    {-1, -1, A_REVERSE},    /* selected */
+    {-1, -1, 0},            /* RX graph */
+    {-1, -1, 0},            /* TX graph */
 };
 #else
 struct layout cfg_layout[] =
 {
-	{0, 0, 0},                              /* dummy, not used */
-	{COLOR_BLACK, COLOR_WHITE, 0},          /* default */
-	{COLOR_BLACK, COLOR_WHITE, A_REVERSE},  /* statusbar */
-	{COLOR_BLACK, COLOR_WHITE, 0},          /* header */
-	{COLOR_BLACK, COLOR_WHITE, 0},          /* list */
-	{COLOR_BLACK, COLOR_WHITE, A_REVERSE},  /* selected */
+	{0, 0, 0},                               /* dummy, not used */
+	{COLOR_WHITE, COLOR_BLACK, 0},           /* default */
+	{COLOR_BLUE,   COLOR_GREEN, A_REVERSE},  /* statusbar */
+	{COLOR_GREEN,  COLOR_BLACK, 0},          /* header */
+	{COLOR_WHITE,  COLOR_BLACK, 0},          /* list */
+	{COLOR_YELLOW, COLOR_BLACK, A_REVERSE},  /* selected */
+    {COLOR_GREEN,  COLOR_BLACK, 0},          /* RX graph */
+    {COLOR_RED,    COLOR_BLACK, 0},          /* TX graph */
 };
 #endif
 #endif
@@ -423,6 +439,41 @@ static void configfile_read_attrs(void)
 	}
 }
 
+static void configfile_read_layout_cfg(void)
+{
+    int i, nlayouts;
+    cfg_t *lout;
+    nlayouts = cfg_size(cfg, "layout");
+    for (i = 0; i < nlayouts; i++)
+    {
+        int c, ncolors;
+        const char *name;
+        if (!(lout = cfg_getnsec(cfg, "layout", i)))
+            BUG();
+
+        if (!(name = cfg_title(lout)))
+            BUG();
+
+        ncolors = cfg_size(lout, "color");
+        if (ncolors > LAYOUT_MAX) {
+            fprintf(stderr, "Warning excceeded maximum number of layouts\n");
+            ncolors = LAYOUT_MAX;
+        }
+
+        for (c = 0; c < ncolors; c++) {
+            cfg_t *color_pair;
+
+            if (!(color_pair = cfg_getnsec(lout, "color", c)))
+                BUG();
+
+            if (!(name = cfg_title(color_pair)))
+                BUG();
+
+            add_layout(name, color_pair);
+        }
+    }
+}
+
 static void conf_read(const char *path, int must)
 {
 	int err;
@@ -450,6 +501,7 @@ static void conf_read(const char *path, int must)
 	configfile_read_history();
 	configfile_read_attrs();
 	configfile_read_element_cfg();
+    configfile_read_layout_cfg();
 }
 
 static const char default_config[] = \
@@ -508,6 +560,29 @@ static const char default_config[] = \
 "history day {" \
 "	interval	= 86400.0" \
 "	size		= 60" \
+"}"
+"layout colors {" \
+"   color default {" \
+"       color_pair = { \"white\", \"black\" }" \
+"   }" \
+"   color statusbar{" \
+"       color_pair = { \"blue\", \"white\", \"reverse\" }" \
+"   }" \
+"   color header {" \
+"       color_pair = { \"yellow\", \"black\" }" \
+"   }" \
+"   color list {" \
+"       color_pair = { \"white\", \"black\" }" \
+"   }" \
+"   color selected {" \
+"       color_pair = { \"yellow\", \"black\", \"reverse\" }" \
+"   }" \
+"   color rx_graph {" \
+"       color_pair = { \"green\", \"black\" }" \
+"   }" \
+"   color tx_graph {" \
+"       color_pair = { \"red\", \"black\" }" \
+"   }" \
 "}";
 
 static void conf_read_default(void)
@@ -524,6 +599,7 @@ static void conf_read_default(void)
 	configfile_read_history();
 	configfile_read_attrs();
 	configfile_read_element_cfg();
+    configfile_read_layout_cfg();
 }
 
 void configfile_read(void)
