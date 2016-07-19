@@ -48,8 +48,13 @@ bmon
 ```
 
 -------------
-## New in 3.8
- * Don't disable Netlink if TC stats are unavailable
+## New in 3.9
+ * Color support
+ * Add ability to reset statistics from curses UI
+ * NetBSD compile fix
+ * Option to enable info display by default
+ * Additional IPv6 statistics
+ * Various fixes
 
 -------------
 ### Usage
@@ -65,12 +70,15 @@ provided via:
 
 ## Screenshots
 
-![Screenshot 1](https://github.com/tgraf/bmon/raw/gh-pages/images/shot1.png)
-![Screenshot 2](https://github.com/tgraf/bmon/raw/gh-pages/images/shot2.png)
+![Screenshot 1](https://github.com/tgraf/bmon/raw/gh-pages/images/shot3.png)
+![Screenshot 2](https://github.com/tgraf/bmon/raw/gh-pages/images/shot1.png)
+![Screenshot 3](https://github.com/tgraf/bmon/raw/gh-pages/images/shot2.png)
 
 ## Copyright
 
-> *Copyright (c) 2001-2014 Thomas Graf <tgraf@suug.ch>*
+Various authors, see git commit log.
+
+> *Copyright (c) 2001-2016 Thomas Graf <tgraf@suug.ch>*
 > *Copyright (c) 2013 Red Hat, Inc.*
 
 Please see the [LICENSE.BSD](https://github.com/tgraf/bmon/blob/master/LICENSE.BSD)

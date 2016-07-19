@@ -1,3 +1,11 @@
+v3.9 - Jul 19, 2016
+ * Color support
+ * Add ability to reset statistics from curses UI
+ * NetBSD compile fix
+ * Option to enable info display by default
+ * Additional IPv6 statistics
+ * Various fixes
+
 v3.8 - July 25, 2015
 ----------------------
  * Don't disable Netlink if TC stats are unavailable
