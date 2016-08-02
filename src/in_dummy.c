@@ -89,7 +89,11 @@ static void dummy_read(void)
 		char gname[32];
 		struct element_group *group;
 
-		snprintf(gname, sizeof(gname), "group%02d", gidx);
+		if (gidx == 0)
+			snprintf(gname, sizeof(gname), "%s", DEFAULT_GROUP);
+		else
+			snprintf(gname, sizeof(gname), "group%02d", gidx);
+
 		group = group_lookup(gname, GROUP_CREATE);
 
 		for (n = 0; n < c_numdev; n++) {
