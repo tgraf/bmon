@@ -201,12 +201,6 @@ void element_free(struct element *e)
 	struct attr *a, *an;
 	int i;
 
-	if (e->e_group->g_current == e) {
-		element_select_prev();
-		if (e->e_group->g_current == e)
-			e->e_group->g_current = NULL;
-	}
-
 	list_for_each_entry_safe(c, cnext, &e->e_childs, e_list)
 		element_free(c);
 
@@ -220,6 +214,12 @@ void element_free(struct element *e)
 	for (i = 0; i < ATTR_HASH_SIZE; i++)
 		list_for_each_entry_safe(a, an, &e->e_attrhash[i], a_list)
 			attr_free(a);
+
+	if (e->e_group->g_current == e) {
+		element_select_prev();
+		if (e->e_group->g_current == e)
+			e->e_group->g_current = NULL;
+	}
 
 	list_del(&e->e_list);
 	e->e_group->g_nelements--;
