@@ -358,6 +358,26 @@ int element_set_usage_attr(struct element *e, const char *usage)
 	return 0;
 }
 
+void element_pick_from_policy(struct element_group *g)
+{
+	if (!list_empty(&allowed)) {
+		struct policy *p;
+
+		list_for_each_entry(p, &allowed, p_list) {
+			struct element *e;
+
+			list_for_each_entry(e, &g->g_elements, e_list) {
+				if (match_mask(p, e->e_name)) {
+					g->g_current = e;
+					return;
+				}
+			}
+		}
+	}
+
+	element_select_first();
+}
+
 struct element *element_current(void)
 {
 	struct element_group *g;
@@ -365,8 +385,12 @@ struct element *element_current(void)
 	if (!(g = group_current()))
 		return NULL;
 
+	/*
+	 * If no element is picked yet, pick a default interface according to
+	 * the selection policy.
+	 */
 	if (!g->g_current)
-		element_select_first();
+		element_pick_from_policy(g);
 
 	return g->g_current;
 }

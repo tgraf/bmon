@@ -1,3 +1,6 @@
+HEAD
+ * Pick default selected interface based on policy
+
 v3.9 - Jul 19, 2016
  * Color support
  * Add ability to reset statistics from curses UI
