@@ -258,7 +258,7 @@ static void draw_attr_detail(struct element *e, struct attr *a, void *arg)
 	if (ncol > 0)
 		addch(ACS_VLINE);
 
-	put_line(" %-14.14s %8s%-3s %8s%-3s\n",
+	put_line(" %-14.14s %8s%-3s %8s%-3s",
 		 a->a_def->ad_description,
 		 (a->a_flags & ATTR_RX_ENABLED) ?
 		 float2str(rx, 8, rxprec, buf1, sizeof(buf1)) : "-", rx_u,
