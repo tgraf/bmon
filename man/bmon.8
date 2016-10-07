@@ -220,6 +220,14 @@ and eth1:
 .RS 4
 \fBbmon \-p eth0,eth1 \-o curses\fP
 .RE
+.PP
+To run bmon in format mode, monitoring any eth* interfaces, with a specified
+format string:
+.PP
+.RS 4
+\fBbmon \-p \(aqeth*\(aq \-o format:fmt=\(aq$(element:name) $(attr:rxrate:packets)\en\(aq\fP
+.RE
+.PP
 
 .SH "FILES"
 /etc/bmon.conf
