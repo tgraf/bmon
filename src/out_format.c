@@ -326,9 +326,9 @@ static void print_help(void)
 	"    '$(element:name) $(attr:rxrate:packets) $(attr:txrate:packets)\\n'\n" \
 	"    eth0 33 5\n" \
 	"\n" \
-	"    'Item: $(element:name)\\n' \\\n" \
-	"        'Bytes Rate: $(attr:rxrate:bytes)/$(attr:txrate:bytes)\\n' \\\n" \
-	"        'Packets Rate: $(attr:rxrate:packets)/$(attr:txrate:packets)\\n'\n" \
+	"    'Item: $(element:name)\\nBytes Rate: $(attr:rxrate:bytes)/" \
+	"$(attr:txrate:bytes)\\nPackets Rate: $(attr:rxrate:packets)/" \
+	"$(attr:txrate:packets)\\n'\n" \
 	"    Item: eth0\n" \
 	"    Bytes Rate: 49130/2119\n" \
 	"    Packets Rate: 40/11\n" \
