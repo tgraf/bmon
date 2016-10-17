@@ -212,6 +212,7 @@ static void ascii_draw_group(struct element_group *g, void *arg)
 static void ascii_draw(void)
 {
 	group_foreach(ascii_draw_group, NULL);
+	fflush(stdout);
 
 	if (c_quit_after > 0)
 		if (--c_quit_after == 0)
