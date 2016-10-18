@@ -166,6 +166,7 @@ static void draw_element(struct element_group *g, struct element *e, void *arg)
 static void format_draw(void)
 {
 	group_foreach_recursive(draw_element, NULL);
+	fflush(stdout);
 
 	if (c_quit_after > 0)
 		if (--c_quit_after == 0)
