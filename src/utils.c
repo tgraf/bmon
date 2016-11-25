@@ -27,6 +27,11 @@
 #include <bmon/conf.h>
 #include <bmon/utils.h>
 
+#ifdef __MACH__
+#include <mach/clock.h>
+#include <mach/mach.h>
+#endif
+
 void *xcalloc(size_t n, size_t s)
 {
 	void *d = calloc(n, s);
@@ -112,12 +117,21 @@ int timestamp_is_negative(timestamp_t *ts)
 
 void update_timestamp(timestamp_t *dst)
 {
-	struct timeval tv;
+#ifdef __MACH__
+	clock_serv_t cclock;
+	mach_timespec_t tp;
 
-	gettimeofday(&tv, NULL);
+	host_get_clock_service(mach_host_self(), SYSTEM_CLOCK, &cclock);
+	clock_get_time(cclock, &tp);
+	mach_port_deallocate(mach_task_self(), cclock);
+#else
+	struct timespec tp;
 
-	dst->tv_sec = tv.tv_sec;
-	dst->tv_usec = tv.tv_usec;
+	clock_gettime(CLOCK_MONOTONIC, &tp);
+#endif
+
+	dst->tv_sec = tp.tv_sec;
+	dst->tv_usec = tp.tv_nsec / 1000;
 }
 
 void copy_timestamp(timestamp_t *ts1, timestamp_t *ts2)

@@ -58,7 +58,7 @@ AC_CHECK_HEADERS(sys/param.h sys/socket.h)
 
 AC_CHECK_TYPES(suseconds_t)
 
-AC_CHECK_FUNCS(atexit gettimeofday memset pow socket strcasecmp)
+AC_CHECK_FUNCS(atexit clock_gettime memset pow socket strcasecmp)
 AC_CHECK_FUNCS(strchr strdup strerror strncasecmp strstr strtol)
 AC_CHECK_FUNCS(uname getdate)
 
@@ -85,6 +85,9 @@ case ${target_os} in
 esac
 
 AC_CHECK_LIB(m, pow, [], AC_MSG_ERROR([requires libm]))
+
+# Don't fail if not found (for instance, OS X does not have clock_gettime)
+AC_CHECK_LIB(rt, clock_gettime, [], [])
 
 BMON_LIB=""
 
