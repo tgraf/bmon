@@ -60,6 +60,11 @@ static struct bmon_module netlink_ops;
 # define RTNL_LINK_IP6_CEPKTS		-1
 #endif
 
+/* Not available prior to libnl 3.2.29 */
+#if LIBNL_CURRENT < 224
+# define RTNL_LINK_RX_NOHANDLER		-1
+#endif
+
 static struct attr_map link_attrs[] = {
 {
 	.name		= "bytes",
@@ -100,6 +105,14 @@ static struct attr_map link_attrs[] = {
 	.description	= "Compressed",
 	.rxid		= RTNL_LINK_RX_COMPRESSED,
 	.txid		= RTNL_LINK_TX_COMPRESSED,
+},
+{
+	.name		= "nohandler",
+	.type		= ATTR_TYPE_COUNTER,
+	.unit		= UNIT_NUMBER,
+	.description	= "No Handler",
+	.rxid		= RTNL_LINK_RX_NOHANDLER,
+	.txid		= -1,
 },
 {
 	.name		= "fifoerr",
