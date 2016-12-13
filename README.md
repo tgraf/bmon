@@ -60,13 +60,13 @@ bmon
 ```
 
 -------------
-## New in 3.9
- * Color support
- * Add ability to reset statistics from curses UI
- * NetBSD compile fix
- * Option to enable info display by default
- * Additional IPv6 statistics
- * Various fixes
+## New in 4.0
+ * Use monotonic clock instead of realtime clock
+ * Pick default selected interface based on policy
+ * Collect RX NoHandler statistics if available (Linux)
+ * CentOS installation instructions
+ * Proper stdout flush in ASCII mode
+ * Bugfixes
 
 -------------
 ### Usage

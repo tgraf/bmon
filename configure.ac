@@ -1,7 +1,7 @@
 #
 # configure.in      Configure Script
 #
-# Copyright (c) 2001-2013 Thomas Graf <tgraf@suug.ch>
+# Copyright (c) 2001-2016 Thomas Graf <tgraf@suug.ch>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a
 # copy of this software and associated documentation files (the "Software"),
@@ -21,7 +21,7 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 # DEALINGS IN THE SOFTWARE.
 
-AC_INIT(bmon, 3.9, [], [], [http://www.infradead.org/~tgr/bmon/])
+AC_INIT(bmon, 4.0, [], [], [https://github.com/tgraf/bmon])
 AC_CONFIG_HEADERS(include/bmon/defs.h)
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_MACRO_DIR([m4])
