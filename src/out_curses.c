@@ -147,22 +147,24 @@ static char *float2str(double value, int width, int prec, char *buf, size_t len)
 static void put_line(const char *fmt, ...)
 {
 	va_list args;
-	char buf[2048];
+	char *buf;
+	int len;
 	int x, y __unused__;
 
-	memset(buf, 0, sizeof(buf));
 	getyx(stdscr, y, x);
 
+	len = cols - x;
+	buf = xcalloc(len+1, 1);
+
 	va_start(args, fmt);
-	vsnprintf(buf, sizeof(buf), fmt, args);
+	vsnprintf(buf, len+1, fmt, args);
 	va_end(args);
 
-	if (strlen(buf) > cols-x)
-		buf[cols - x] = '\0';
-	else
-		memset(&buf[strlen(buf)], ' ', cols - strlen(buf)-x);
+	if (strlen(buf) < len)
+		memset(&buf[strlen(buf)], ' ', len - strlen(buf));
 
 	addstr(buf);
+	xfree(buf);
 }
 
 static void center_text(const char *fmt, ...)
