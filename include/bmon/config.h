@@ -48,7 +48,7 @@
 #include <dirent.h>
 #ifdef SYS_BSD
 # include <float.h>
-#else
+#elif !defined(__ANDROID__)
 # include <values.h>
 #endif
 
