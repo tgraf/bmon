@@ -39,6 +39,13 @@ bmon
 ```
 
 ## OSX Installation
+
+### Brew
+```
+brew install bmon
+```
+
+### Compile yourself
 Install libconfuse
 ```
 wget https://github.com/martinh/libconfuse/releases/download/v2.8/confuse-2.8.zip
