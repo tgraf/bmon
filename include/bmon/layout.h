@@ -28,6 +28,8 @@ static int parse_color(const char* color)
         color_code = COLOR_MAGENTA;
     else if ((strcasestr(color, "cyan") != NULL))
         color_code = COLOR_CYAN;
+    else if ((atoi(color) >= 0))
+        color_code = atoi(color);
 
     return color_code;
 }
