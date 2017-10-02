@@ -45,6 +45,8 @@ enum {
 	KEY_TOGGLE_DETAILS	= 'd',
 	KEY_TOGGLE_INFO		= 'i',
 	KEY_COLLECT_HISTORY	= 'h',
+	KEY_CTRL_N	= 14,
+	KEY_CTRL_P	= 16,
 };
 
 #define DETAILS_COLS		40
@@ -1178,10 +1180,12 @@ static int handle_input(int ch)
 			return 1;
 
 		case KEY_DOWN:
+		case KEY_CTRL_N:
 			element_select_next();
 			return 1;
 
 		case KEY_UP:
+		case KEY_CTRL_P:
 			element_select_prev();
 			return 1;
 
