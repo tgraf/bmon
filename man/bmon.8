@@ -34,7 +34,7 @@ in parallel. bmon automatically loads a useful and working input module
 by default. See INPUT MODULES for more details.
 .RE
 .PP
-\fB \-o\fR, \fB\-\-output\fRMODULE[:OPTIONS][,MODULE...]
+\fB \-o\fR, \fB\-\-output=\fRMODULE[:OPTIONS][,MODULE...]
 .RS 4
 Set list of output modules to load and use. Multiple modules can be used
 in parallel. By default, bmon will use the curses output mode, if that is
@@ -58,7 +58,7 @@ Set policy defining which network interfaces to display. See
 INTERFACE SELECTION for more details.
 .RE
 .PP
-\fB \-a\fR, \fB\-\-show\-all=\fR
+\fB \-a\fR, \fB\-\-show\-all\fR
 .RS 4
 Display all interfaces, even interface that are administratively down.
 .RE
@@ -137,7 +137,7 @@ The following output modules exist:
 .TP
 \fBcurses\fR
 Interactive curses based text user interface providing real time rate
-estimations and a graphical representatio nof each attribute. Press '?'
+estimations and a graphical representation of each attribute. Press '?'
 to display the quick reference guide. This is the default output mode.
 
 .TP
