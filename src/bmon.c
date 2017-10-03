@@ -67,14 +67,14 @@ static char *usage_text =
 "   Examples:\n" \
 "       -o curses:ngraph=2\n" \
 "       -o list            # Shows a list of available modules\n" \
-"       -o curses:help     # Shows a help text for html module\n" \
+"       -o curses:help     # Shows a help text for curses module\n" \
 "\n" \
 "Interface selection:\n" \
 "   policy  := [!]simple_regexp,[!]simple_regexp,...\n" \
 "\n" \
 "   Example: -p 'eth*,lo*,!eth1'\n" \
 "\n" \
-"Please see the bmon(1) man pages for full documentation.\n";
+"Please see the bmon(8) man pages for full documentation.\n";
 
 static void do_shutdown(void)
 {

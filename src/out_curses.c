@@ -1254,7 +1254,7 @@ static void print_module_help(void)
 	"  Author: Thomas Graf <tgraf@suug.ch>\n" \
 	"\n" \
 	"  Options:\n" \
-	"    fgchar=CHAR    Foreground character (default: '*')\n" \
+	"    fgchar=CHAR    Foreground character (default: '|')\n" \
 	"    bgchar=CHAR    Background character (default: '.')\n" \
 	"    nchar=CHAR     Noise character (default: ':')\n" \
 	"    uchar=CHAR     Unknown character (default: '?')\n" \
