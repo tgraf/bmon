@@ -981,8 +981,10 @@ draw:
 	 */
 	NEXT_ROW();
 	hline(ACS_HLINE, cols);
-	mvaddch(row, LIST_COL_1, ACS_BTEE);
-	mvaddch(row, LIST_COL_2, ACS_BTEE);
+	if (c_show_list) {
+		mvaddch(row, LIST_COL_1, ACS_BTEE);
+		mvaddch(row, LIST_COL_2, ACS_BTEE);
+	}
 
 	if (!c_show_graph)
 		center_text(" Press %c to enable graphical statistics ",
@@ -1023,6 +1025,12 @@ draw:
 	 */
 	NEXT_ROW();
 	hline(ACS_HLINE, cols);
+
+	if (c_show_details) {
+		int i;
+		for (i = 1; i < detail_cols; i++)
+			mvaddch(row, (i * DETAILS_COLS) - 1, ACS_BTEE);
+	}
 
 	if (!c_show_info)
 		center_text(" Press %c to enable additional information ",
