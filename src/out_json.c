@@ -76,7 +76,7 @@ static void json_draw_group(struct element_group *g, void *arg) {
     group_foreach_element(g, json_draw_element, NULL);
     if( e_count > 0 )
         printf("\n  ");
-    printf("]}", g->g_name);
+    printf("]}");
     g_count ++;
 }
 
