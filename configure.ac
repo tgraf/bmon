@@ -175,7 +175,7 @@ case ${target_os} in
 	AC_DEFINE_UNQUOTED(SYS_SUNOS, "1", [operating system])
     ;;
 
-    *bsd*)
+    *bsd*|dragonfly*)
 	AC_DEFINE_UNQUOTED(SYS_BSD, "1", [operating system])
     ;;
 
