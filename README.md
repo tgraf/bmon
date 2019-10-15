@@ -25,7 +25,7 @@ make
 make install
 bmon
 ```
-## CentOS (6) Installation
+## CentOS 6 Installation
 
 ```
 git clone https://github.com/tgraf/bmon.git
@@ -36,6 +36,18 @@ yum install make libconfuse-devel libnl3-devel libnl-route3-devel ncurses-devel
 make
 make install
 bmon
+```
+
+## CentOS 7 Installation
+
+```
+yum install bmon
+```
+
+## Fedora Installation
+
+```
+dnf install bmon
 ```
 
 ## OSX Installation
