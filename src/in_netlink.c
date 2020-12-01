@@ -550,7 +550,7 @@ static void find_qdiscs(int, uint32_t, struct rdata *);
 static struct element *handle_tc_obj(struct rtnl_tc *tc, const char *prefix,
 				     const struct rdata *rdata)
 {
-	char buf[IFNAME_MAX], name[IFNAME_MAX];
+	char buf[IFNAME_MAX], name[IFNAME_MAX + 6];
 	uint32_t id = rtnl_tc_get_handle(tc);
 	struct element *e;
 
