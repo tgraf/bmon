@@ -27,7 +27,7 @@
 #include <bmon/conf.h>
 #include <bmon/utils.h>
 
-#ifdef __MACH__
+#if defined(__MACH__) && defined(__APPLE__)
 #include <mach/clock.h>
 #include <mach/mach.h>
 #endif
@@ -117,7 +117,7 @@ int timestamp_is_negative(timestamp_t *ts)
 
 void update_timestamp(timestamp_t *dst)
 {
-#ifdef __MACH__
+#if defined(__MACH__) && defined(__APPLE__)
 	clock_serv_t cclock;
 	mach_timespec_t tp;
 
