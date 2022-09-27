@@ -672,14 +672,27 @@ static void handle_qdisc(struct nl_object *obj, void *arg)
 
 	ndata.parent = e;
 
-	find_cls(rtnl_tc_get_ifindex(tc), rtnl_tc_get_handle(tc), &ndata);
-
-	if (rtnl_tc_get_parent(tc) == TC_H_ROOT) {
+	switch(rtnl_tc_get_parent(tc)) {
+	case TC_H_INGRESS:
+		if (!strcmp(rtnl_tc_get_kind(tc), "clsact")) {
+			 find_cls(rtnl_tc_get_ifindex(tc),
+				  TC_H_MAKE(TC_H_CLSACT, TC_H_MIN_INGRESS),
+				  &ndata);
+			 find_cls(rtnl_tc_get_ifindex(tc),
+				  TC_H_MAKE(TC_H_CLSACT, TC_H_MIN_EGRESS),
+				  &ndata);
+		} else {
+			find_cls(rtnl_tc_get_ifindex(tc), TC_H_INGRESS, &ndata);
+		}
+		break;
+	case TC_H_ROOT:
 		find_cls(rtnl_tc_get_ifindex(tc), TC_H_ROOT, &ndata);
 		find_classes(TC_H_ROOT, &ndata);
+		/* fall-through */
+	default:
+		find_cls(rtnl_tc_get_ifindex(tc), rtnl_tc_get_handle(tc), &ndata);
+		find_classes(rtnl_tc_get_handle(tc), &ndata);
 	}
-
-	find_classes(rtnl_tc_get_handle(tc), &ndata);
 }
 
 static void handle_tc(struct element *e, struct rtnl_link *link)
