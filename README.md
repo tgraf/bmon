@@ -50,7 +50,7 @@ yum install bmon
 dnf install bmon
 ```
 
-## OSX Installation
+## macOS Installation
 
 ### Brew
 ```
