@@ -322,8 +322,8 @@ void element_check_if_dead(struct element_group *g,
 			   struct element *e, void *arg)
 {
 	if (--(e->e_lifecycles) <= 0) {
-		element_free(e);
 		DBG("Deleting dead element %s", e->e_name);
+		element_free(e);
 	}
 }
 
