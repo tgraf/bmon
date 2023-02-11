@@ -37,6 +37,8 @@ static int c_notc = 0;
 static struct element_group *grp;
 static struct bmon_module netlink_ops;
 
+#include <linux/if.h>
+
 #include <netlink/netlink.h>
 #include <netlink/cache.h>
 #include <netlink/utils.h>
@@ -46,6 +48,22 @@ static struct bmon_module netlink_ops;
 #include <netlink/route/class.h>
 #include <netlink/route/classifier.h>
 #include <netlink/route/qdisc/htb.h>
+
+/* These counters are not available prior to libnl 3.2.25. Set them to -1 so
+ * rtnl_link_get_stat() won't be called for them. */
+#if LIBNL_CURRENT < 220
+# define RTNL_LINK_ICMP6_CSUMERRORS	-1
+# define RTNL_LINK_IP6_CSUMERRORS	-1
+# define RTNL_LINK_IP6_NOECTPKTS	-1
+# define RTNL_LINK_IP6_ECT1PKTS		-1
+# define RTNL_LINK_IP6_ECT0PKTS		-1
+# define RTNL_LINK_IP6_CEPKTS		-1
+#endif
+
+/* Not available prior to libnl 3.2.29 */
+#if LIBNL_CURRENT < 224
+# define RTNL_LINK_RX_NOHANDLER		-1
+#endif
 
 static struct attr_map link_attrs[] = {
 {
@@ -87,6 +105,14 @@ static struct attr_map link_attrs[] = {
 	.description	= "Compressed",
 	.rxid		= RTNL_LINK_RX_COMPRESSED,
 	.txid		= RTNL_LINK_TX_COMPRESSED,
+},
+{
+	.name		= "nohandler",
+	.type		= ATTR_TYPE_COUNTER,
+	.unit		= UNIT_NUMBER,
+	.description	= "No Handler",
+	.rxid		= RTNL_LINK_RX_NOHANDLER,
+	.txid		= -1,
 },
 {
 	.name		= "fifoerr",
@@ -281,6 +307,14 @@ static struct attr_map link_attrs[] = {
 	.txid		= RTNL_LINK_ICMP6_OUTERRORS,
 },
 {
+	.name		= "icmp6csumerr",
+	.type		= ATTR_TYPE_COUNTER,
+	.unit		= UNIT_NUMBER,
+	.description	= "ICMPv6 Checksum Errors",
+	.rxid		= RTNL_LINK_ICMP6_CSUMERRORS,
+	.txid		= -1,
+},
+{
 	.name		= "ip6inhdrerr",
 	.type		= ATTR_TYPE_COUNTER,
 	.unit		= UNIT_NUMBER,
@@ -321,6 +355,14 @@ static struct attr_map link_attrs[] = {
 	.txid		= -1,
 },
 {
+	.name		= "ip6csumerr",
+	.type		= ATTR_TYPE_COUNTER,
+	.unit		= UNIT_NUMBER,
+	.description	= "Ip6 Checksum Error",
+	.rxid		= RTNL_LINK_IP6_CSUMERRORS,
+	.txid		= -1,
+},
+{
 	.name		= "ip6reasmtimeo",
 	.type		= ATTR_TYPE_COUNTER,
 	.unit		= UNIT_NUMBER,
@@ -351,6 +393,38 @@ static struct attr_map link_attrs[] = {
 	.description	= "Ip6 Reasm/Frag Requests",
 	.rxid		= RTNL_LINK_IP6_REASMREQDS,
 	.txid		= RTNL_LINK_IP6_FRAGCREATES,
+},
+{
+	.name		= "ip6noectpkts",
+	.type		= ATTR_TYPE_COUNTER,
+	.unit		= UNIT_NUMBER,
+	.description	= "Ip6 Non-ECT Packets",
+	.rxid		= RTNL_LINK_IP6_NOECTPKTS,
+	.txid		= -1,
+},
+{
+	.name		= "ip6ect1pkts",
+	.type		= ATTR_TYPE_COUNTER,
+	.unit		= UNIT_NUMBER,
+	.description	= "Ip6 ECT(1) Packets",
+	.rxid		= RTNL_LINK_IP6_ECT1PKTS,
+	.txid		= -1,
+},
+{
+	.name		= "ip6ect0pkts",
+	.type		= ATTR_TYPE_COUNTER,
+	.unit		= UNIT_NUMBER,
+	.description	= "Ip6 ECT(0) Packets",
+	.rxid		= RTNL_LINK_IP6_ECT0PKTS,
+	.txid		= -1,
+},
+{
+	.name		= "ip6cepkts",
+	.type		= ATTR_TYPE_COUNTER,
+	.unit		= UNIT_NUMBER,
+	.description	= "Ip6 CE Packets",
+	.rxid		= RTNL_LINK_IP6_CEPKTS,
+	.txid		= -1,
 }
 };
 
@@ -430,12 +504,13 @@ static struct attr_map tc_attrs[] = {
 };
 
 struct rdata {
+	struct nl_cache *	class_cache;
 	struct element *	parent;
 	int 			level;
 };
 
 static struct nl_sock *sock;
-static struct nl_cache *link_cache, *qdisc_cache, *class_cache;
+static struct nl_cache *link_cache, *qdisc_cache;
 
 static void update_tc_attrs(struct element *e, struct rtnl_tc *tc)
 {
@@ -470,10 +545,10 @@ static void update_tc_infos(struct element *e, struct rtnl_tc *tc)
 
 static void handle_qdisc(struct nl_object *obj, void *);
 static void find_classes(uint32_t, struct rdata *);
-static void find_qdiscs(uint32_t, struct rdata *);
+static void find_qdiscs(int, uint32_t, struct rdata *);
 
 static struct element *handle_tc_obj(struct rtnl_tc *tc, const char *prefix,
-				     struct rdata *rdata)
+				     const struct rdata *rdata)
 {
 	char buf[IFNAME_MAX], name[IFNAME_MAX];
 	uint32_t id = rtnl_tc_get_handle(tc);
@@ -483,11 +558,14 @@ static struct element *handle_tc_obj(struct rtnl_tc *tc, const char *prefix,
 	snprintf(name, sizeof(name), "%s %s (%s)",
 		 prefix, buf, rtnl_tc_get_kind(tc));
 
-	if (!(e = element_lookup(grp, name, id, rdata ? rdata->parent : NULL, ELEMENT_CREAT)))
+	if (!rdata || !rdata->parent)
+		BUG();
+
+	if (!(e = element_lookup(grp, name, id, rdata->parent, ELEMENT_CREAT)))
 		return NULL;
 
 	if (e->e_flags & ELEMENT_FLAG_CREATED) {
-		e->e_level = rdata ? rdata->level : 0;
+		e->e_level = rdata->level;
 
 		if (element_set_key_attr(e, "tc_bytes", "tc_packets") ||
 		    element_set_usage_attr(e, "tc_bytes"))
@@ -518,8 +596,9 @@ static void handle_class(struct nl_object *obj, void *arg)
 {
 	struct rtnl_tc *tc = (struct rtnl_tc *) obj;
 	struct element *e;
-	struct rdata *rdata = arg;
+	const struct rdata *rdata = arg;
 	struct rdata ndata = {
+		.class_cache = rdata->class_cache,
 		.level = rdata->level + 1,
 	};
 
@@ -532,10 +611,10 @@ static void handle_class(struct nl_object *obj, void *arg)
 		element_set_txmax(e, rtnl_htb_get_rate((struct rtnl_class *) tc));
 
 	find_classes(rtnl_tc_get_handle(tc), &ndata);
-	find_qdiscs(rtnl_tc_get_handle(tc), &ndata);
+	find_qdiscs(rtnl_tc_get_ifindex(tc), rtnl_tc_get_handle(tc), &ndata);
 }
 
-static void find_qdiscs(uint32_t parent, struct rdata *rdata)
+static void find_qdiscs(int ifindex, uint32_t parent, struct rdata *rdata)
 {
 	struct rtnl_qdisc *filter;
 
@@ -543,6 +622,7 @@ static void find_qdiscs(uint32_t parent, struct rdata *rdata)
 		return;
 
 	rtnl_tc_set_parent((struct rtnl_tc *) filter, parent);
+	rtnl_tc_set_ifindex((struct rtnl_tc *) filter, ifindex);
 
 	nl_cache_foreach_filter(qdisc_cache, OBJ_CAST(filter),
 				handle_qdisc, rdata);
@@ -571,7 +651,7 @@ static void find_classes(uint32_t parent, struct rdata *rdata)
 
 	rtnl_tc_set_parent((struct rtnl_tc *) filter, parent);
 
-	nl_cache_foreach_filter(class_cache, OBJ_CAST(filter),
+	nl_cache_foreach_filter(rdata->class_cache, OBJ_CAST(filter),
 				handle_class, rdata);
 
 	rtnl_class_put(filter);
@@ -581,8 +661,9 @@ static void handle_qdisc(struct nl_object *obj, void *arg)
 {
 	struct rtnl_tc *tc = (struct rtnl_tc *) obj;
 	struct element *e;
-	struct rdata *rdata = arg;
+	const struct rdata *rdata = arg;
 	struct rdata ndata = {
+		.class_cache = rdata->class_cache,
 		.level = rdata->level + 1,
 	};
 
@@ -604,6 +685,7 @@ static void handle_qdisc(struct nl_object *obj, void *arg)
 static void handle_tc(struct element *e, struct rtnl_link *link)
 {
 	struct rtnl_qdisc *qdisc;
+	struct nl_cache *class_cache;
 	int ifindex = rtnl_link_get_ifindex(link);
 	struct rdata rdata = {
 		.level = 1,
@@ -612,6 +694,8 @@ static void handle_tc(struct element *e, struct rtnl_link *link)
 
 	if (rtnl_class_alloc_cache(sock, ifindex, &class_cache) < 0)
 		return;
+
+	rdata.class_cache = class_cache;
 
 	qdisc = rtnl_qdisc_get_by_parent(qdisc_cache, ifindex, TC_H_ROOT);
 	if (qdisc) {
@@ -736,7 +820,7 @@ static void do_link(struct nl_object *obj, void *arg)
 		attr_update(e, m->attrid, c_rx, c_tx, flags);
 	}
 
-	if (!c_notc)
+	if (!c_notc && qdisc_cache)
 		handle_tc(e, link);
 
 	element_notify_update(e, NULL);
@@ -752,7 +836,8 @@ static void netlink_read(void)
 		goto disable;
 	}
 
-	if ((err = nl_cache_resync(sock, qdisc_cache, NULL, NULL)) < 0) {
+	if (qdisc_cache &&
+	    (err = nl_cache_resync(sock, qdisc_cache, NULL, NULL)) < 0) {
 		fprintf(stderr, "Unable to resync qdisc cache: %s\n", nl_geterror(err));
 		goto disable;
 	}
@@ -772,9 +857,20 @@ static void netlink_shutdown(void)
 	nl_socket_free(sock);
 }
 
+static void netlink_use_bit(struct attr_map *map, const int size)
+{
+	if(cfg_getbool(cfg, "use_bit")) {
+		for(int i = 0; i < size; ++i) {
+			if(!strcmp(map[i].description, "Bytes")) {
+				map[i].description = "Bits";
+			}
+		}
+	}
+}
+
 static int netlink_do_init(void)
 {
-	int err, i;
+	int err;
 
 	if (!(sock = nl_socket_alloc())) {
 		fprintf(stderr, "Unable to allocate netlink socket\n");
@@ -792,10 +888,13 @@ static int netlink_do_init(void)
 	}
 
 	if ((err = rtnl_qdisc_alloc_cache(sock, &qdisc_cache)) < 0) {
-		fprintf(stderr, "Unable to allocate qdisc cache: %s\n", nl_geterror(err));
-		goto disable;
+		fprintf(stderr, "Warning: Unable to allocate qdisc cache: %s\n", nl_geterror(err));
+		fprintf(stderr, "Disabling QoS statistics.\n");
+		qdisc_cache = NULL;
 	}
 
+	netlink_use_bit(link_attrs, ARRAY_SIZE(link_attrs));
+	netlink_use_bit(tc_attrs, ARRAY_SIZE(tc_attrs));
 	if (attr_map_load(link_attrs, ARRAY_SIZE(link_attrs)) ||
 	    attr_map_load(tc_attrs, ARRAY_SIZE(tc_attrs)))
 		BUG();
@@ -817,17 +916,17 @@ static int netlink_probe(void)
 
 	if (!(sock = nl_socket_alloc()))
 		return 0;
-	
+
 	if (nl_connect(sock, NETLINK_ROUTE) < 0)
 		return 0;
-	
+
 	if (rtnl_link_alloc_cache(sock, AF_UNSPEC, &lc) == 0) {
 		nl_cache_free(lc);
 		ret = 1;
 	}
 
 	nl_socket_free(sock);
-	
+
 	return ret;
 }
 

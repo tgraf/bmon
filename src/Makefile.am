@@ -7,6 +7,7 @@ bmon_CFLAGS = \
 	-I${top_builddir}/include \
 	-DSYSCONFDIR=\"$(sysconfdir)\" \
 	-D_GNU_SOURCE \
+	-Wall \
 	$(CURSES_CFLAGS) \
 	$(CONFUSE_CFLAGS) \
 	$(LIBNL_CFLAGS) \

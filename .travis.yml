@@ -1,10 +1,40 @@
 language: c
+
+os:
+  - linux
+  - osx
+
+env:
+  global:
+    - secure: "C87Pgf5AVDoyQfm9MIv81g"
+
 compiler:
   - gcc
   - clang
-before_install:
-  - sudo apt-get install libconfuse-dev
-  - sudo apt-get install libnl-3-dev libnl-route-3-dev
-  - sudo apt-get install libncurses-dev
-# Change this to your needs
-script: ./autogen.sh && ./configure && make
+
+# container-based builds
+sudo: false
+addons:
+  apt:
+    packages:
+    # packages list: https://github.com/travis-ci/apt-package-whitelist/blob/master/ubuntu-precise
+    - libconfuse-dev
+    - libncurses5-dev
+    - libnl-3-dev
+    - libnl-route-3-dev
+  coverity_scan:
+    project:
+      name: "tgraf/bmon"
+      description: "bandwidth monitor"
+    notification_email: tgraf@suug.ch
+    build_command_prepend: "./autogen.sh && ./configure"
+    build_command: "make -j2"
+    branch_pattern: coverity_scan
+
+
+install:
+  - if [ "$TRAVIS_BRANCH" = "coverity_scan" ] && ! [ "$TRAVIS_OS_NAME" = "linux" -a "$CC" = "gcc" ]; then exit ; fi
+  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew update > /dev/null && brew install confuse ; fi
+
+script:
+  - ./.travis/run.sh

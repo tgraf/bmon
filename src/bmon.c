@@ -33,8 +33,6 @@
 #include <bmon/group.h>
 
 int start_time;
-int do_quit = 0;
-int is_daemon = 0;
 
 struct reader_timing rtiming;
 
@@ -69,14 +67,14 @@ static char *usage_text =
 "   Examples:\n" \
 "       -o curses:ngraph=2\n" \
 "       -o list            # Shows a list of available modules\n" \
-"       -o curses:help     # Shows a help text for html module\n" \
+"       -o curses:help     # Shows a help text for curses module\n" \
 "\n" \
 "Interface selection:\n" \
 "   policy  := [!]simple_regexp,[!]simple_regexp,...\n" \
 "\n" \
 "   Example: -p 'eth*,lo*,!eth1'\n" \
 "\n" \
-"Please see the bmon(1) man pages for full documentation.\n";
+"Please see the bmon(8) man pages for full documentation.\n";
 
 static void do_shutdown(void)
 {
@@ -88,14 +86,7 @@ static void do_shutdown(void)
 	}
 }
 
-RETSIGTYPE sig_int(int unused)
-{
-	if (do_quit)
-		exit(-1);
-	do_quit = 1;
-}
-
-void sig_exit(void)
+static void sig_exit(void)
 {
 	do_shutdown();
 }
@@ -120,7 +111,7 @@ void quit(const char *fmt, ...)
 static inline void print_version(void)
 {
 	printf("bmon %s\n", PACKAGE_VERSION);
-	printf("Copyright (C) 2001-2013 by Thomas Graf <tgraf@suug.ch>\n");
+	printf("Copyright (C) 2001-2015 by Thomas Graf <tgraf@suug.ch>\n");
 	printf("Copyright (C) 2013 Red Hat, Inc.\n");
 	printf("bmon comes with ABSOLUTELY NO WARRANTY. This is free " \
 	       "software, and you\nare welcome to redistribute it under " \
@@ -136,10 +127,10 @@ static void parse_args_pre(int argc, char *argv[])
 		char *gostr = "+:hvVf:";
 
 		struct option long_opts[] = {
-			{"help", 0, 0, 'h'},
-			{"version", 0, 0, 'v'},
-			{"configfile", 1, 0, 'f'},
-			{0, 0, 0, 0},
+			{"help", 0, NULL, 'h'},
+			{"version", 0, NULL, 'v'},
+			{"configfile", 1, NULL, 'f'},
+			{NULL, 0, NULL, 0},
 		};
 		int c = getopt_long(argc, argv, gostr, long_opts, NULL);
 		if (c == -1)
@@ -175,17 +166,17 @@ static int parse_args_post(int argc, char *argv[])
 			      "L:hvVf:";
 
 		struct option long_opts[] = {
-			{"input", 1, 0, 'i'},
-			{"output", 1, 0, 'o'},
-			{"policy", 1, 0, 'p'},
-			{"read-interval", 1, 0, 'r'},
-			{"rate-interval", 1, 0, 'R'},
-			{"sleep-interval", 1, 0, 's'},
-			{"show-all", 0, 0, 'a'},
-			{"use-si", 0, 0, 'U'},
-			{"use-bit", 0, 0, 'b'},
-			{"lifetime", 1, 0, 'L'},
-			{0, 0, 0, 0},
+			{"input", 1, NULL, 'i'},
+			{"output", 1, NULL, 'o'},
+			{"policy", 1, NULL, 'p'},
+			{"read-interval", 1, NULL, 'r'},
+			{"rate-interval", 1, NULL, 'R'},
+			{"sleep-interval", 1, NULL, 's'},
+			{"show-all", 0, NULL, 'a'},
+			{"use-si", 0, NULL, 'U'},
+			{"use-bit", 0, NULL, 'b'},
+			{"lifetime", 1, NULL, 'L'},
+			{NULL, 0, NULL, 0},
 		};
 		int c = getopt_long(argc, argv, gostr, long_opts, NULL);
 		if (c == -1)
@@ -220,7 +211,7 @@ static int parse_args_post(int argc, char *argv[])
 				break;
 
 			case 'a':
-				cfg_setint(cfg, "show_all", 1);
+				cfg_setbool(cfg, "show_all", cfg_true);
 				break;
 
 			case 'U':
@@ -270,7 +261,7 @@ int main(int argc, char *argv[])
 	unsigned long sleep_time;
 	double read_interval;
 	
-	start_time = time(0);
+	start_time = time(NULL);
 	memset(&rtiming, 0, sizeof(rtiming));
 	rtiming.rt_variance.v_min = FLT_MAX;
 
@@ -361,9 +352,6 @@ int main(int argc, char *argv[])
 				output_post();
 			}
 
-			if (do_quit)
-				exit(0);
-
 			/*
 			 * ST := Configured ST
 			 */
@@ -399,5 +387,4 @@ int main(int argc, char *argv[])
 static void __init bmon_init(void)
 {
 	atexit(&sig_exit);
-	//signal(SIGINT, &sig_int);
 }

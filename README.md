@@ -8,20 +8,86 @@ statistics and prepare them visually in a human friendly way. It
 features various output methods including an interactive curses user
 interface and a programmable text output for scripting.
 
-## Changes
+## Download
 
-### New in 3.4
+ * [Latest Release](https://github.com/tgraf/bmon/releases/latest)
+ * [Older Releases](https://github.com/tgraf/bmon/releases)
+
+## Debian/Ubuntu Installation
+
+```
+git clone https://github.com/tgraf/bmon.git
+cd bmon
+apt-get install build-essential make libconfuse-dev libnl-3-dev libnl-route-3-dev libncurses-dev pkg-config dh-autoreconf
+./autogen.sh
+./configure
+make
+make install
+bmon
+```
+## CentOS 6 Installation
+
+```
+git clone https://github.com/tgraf/bmon.git
+cd bmon
+yum install make libconfuse-devel libnl3-devel libnl-route3-devel ncurses-devel
+./autogen.sh
+./configure
+make
+make install
+bmon
+```
+
+## CentOS 7 Installation
+
+```
+yum install bmon
+```
+
+## Fedora Installation
+
+```
+dnf install bmon
+```
+
+## OSX Installation
+
+### Brew
+```
+brew install bmon
+```
+
+### Compile yourself
+Install libconfuse
+```
+wget https://github.com/martinh/libconfuse/releases/download/v2.8/confuse-2.8.zip
+unzip confuse-2.8.zip && cd confuse-2.8
+PATH=/usr/local/opt/gettext/bin:$PATH ./configure
+make
+make install
+```
+
+Install bmon
+```
+git clone https://github.com/tgraf/bmon.git
+cd bmon
+./autogen.sh
+./configure
+make
+make install
+bmon
+```
+
+-------------
+## New in 4.0
+ * Use monotonic clock instead of realtime clock
+ * Pick default selected interface based on policy
+ * Collect RX NoHandler statistics if available (Linux)
+ * CentOS installation instructions
+ * Proper stdout flush in ASCII mode
  * Bugfixes
-   * blank screen with config file
-   * quick-help toggle with '?' in curses
- * Better bmon.conf example
 
-## New in 3.3
- * MacOS X port
- * Only initialize curses module if actually used
- * Assorted bug and spelling fixes
- * Various build fixes
-
+-------------
 ### Usage
 
 To run bmon in the default curses mode:
@@ -35,14 +101,18 @@ provided via:
 
 ## Screenshots
 
-![Screenshot 1](https://github.com/tgraf/bmon/raw/gh-pages/images/shot1.png)
-![Screenshot 2](https://github.com/tgraf/bmon/raw/gh-pages/images/shot2.png)
+![Screenshot 1](https://github.com/tgraf/bmon/raw/gh-pages/images/shot3.png)
+![Screenshot 2](https://github.com/tgraf/bmon/raw/gh-pages/images/shot1.png)
+![Screenshot 3](https://github.com/tgraf/bmon/raw/gh-pages/images/shot2.png)
 
 ## Copyright
 
-> *Copyright (c) 2001-2014 Thomas Graf <tgraf@suug.ch>
-> Copyright (c) 2013 Red Hat, Inc.*
+Various authors, see git commit log.
 
-Please see the [LICENSE](https://github.com/tgraf/bmon/blob/master/LICENSE)
-file for additional details.
+> *Copyright (c) 2001-2016 Thomas Graf <tgraf@suug.ch>*
+> *Copyright (c) 2013 Red Hat, Inc.*
+
+Please see the [LICENSE.BSD](https://github.com/tgraf/bmon/blob/master/LICENSE.BSD)
+and [LICENSE.MIT](https://github.com/tgraf/bmon/blob/master/LICENSE.MIT) files for
+additional details.
 

@@ -163,6 +163,7 @@ sysctl_read(void)
 		struct element *e, *e_parent = NULL;
 		struct if_msghdr *ifm, *nextifm;
 		struct sockaddr_dl *sdl;
+		char info_buf[64];
 
 		ifm = (struct if_msghdr *) next;
 		if (ifm->ifm_type != RTM_IFINFO)
@@ -224,6 +225,20 @@ sysctl_read(void)
 
 			attr_update(e, m->attrid, rx, tx, flags);
 		}
+
+		snprintf(info_buf, sizeof(info_buf), "%ju", (uintmax_t)ifm->ifm_data.ifi_mtu);
+		element_update_info(e, "MTU", info_buf);
+
+		snprintf(info_buf, sizeof(info_buf), "%ju", (uintmax_t)ifm->ifm_data.ifi_metric);
+		element_update_info(e, "Metric", info_buf);
+
+#if !(defined(__NetBSD__) || defined(__FreeBSD__))
+		snprintf(info_buf, sizeof(info_buf), "%u", ifm->ifm_data.ifi_recvquota);
+		element_update_info(e, "RX-Quota", info_buf);
+
+		snprintf(info_buf, sizeof(info_buf), "%u", ifm->ifm_data.ifi_xmitquota);
+		element_update_info(e, "TX-Quota", info_buf);
+#endif
 
 		element_notify_update(e, NULL);
 		element_lifesign(e, 1);

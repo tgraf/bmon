@@ -42,12 +42,17 @@ struct rate
 	/* Value of r_current at last read */
 	uint64_t		r_prev;
 
+	/* Reset value to substract to emulate statistics reset */
+	uint64_t		r_reset;
+
 	/* Rate per second calculated every `rate_interval' */
 	float			r_rate;
 
 	/* Time of last calculation */
 	timestamp_t		r_last_calc;
 };
+
+extern uint64_t			rate_get_total(struct rate *);
 
 enum {
 	ATTR_TYPE_UNSPEC,
@@ -134,5 +139,6 @@ extern struct attr *		attr_select_prev(void);
 extern struct attr *		attr_current(void);
 
 extern void			attr_start_collecting_history(struct attr *);
+extern void			attr_reset_counter(struct attr *a);
 
 #endif

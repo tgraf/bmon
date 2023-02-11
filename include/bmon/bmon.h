@@ -60,9 +60,11 @@ enum {
 #if defined __GNUC__
 #define __init __attribute__ ((constructor))
 #define __exit __attribute__ ((destructor))
+#define __unused__ __attribute__ ((unused))
 #else
 #define __init
 #define __exit
+#define __unused__
 #endif
 
 #ifdef DEBUG

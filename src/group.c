@@ -261,7 +261,7 @@ static void __init group_init(void)
 {
 	DBG("init");
 
-	group_new_hdr("intf", "Interfaces",
+	group_new_hdr(DEFAULT_GROUP, "Interfaces",
 		      "RX bps", "pps", "TX bps", "pps");
 }
 

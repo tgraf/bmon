@@ -16,4 +16,5 @@ noinst_HEADERS = \
 	bmon/module.h \
 	bmon/output.h \
 	bmon/unit.h \
+	bmon/layout.h \
 	bmon/utils.h

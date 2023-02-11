@@ -45,6 +45,8 @@ enum {
 	KEY_TOGGLE_DETAILS	= 'd',
 	KEY_TOGGLE_INFO		= 'i',
 	KEY_COLLECT_HISTORY	= 'h',
+	KEY_CTRL_N	= 14,
+	KEY_CTRL_P	= 16,
 };
 
 #define DETAILS_COLS		40
@@ -137,7 +139,7 @@ static void apply_layout(int layout)
 		attrset(cfg_layout[layout].l_attr);
 }
 
-char *float2str(double value, int width, int prec, char *buf, size_t len)
+static char *float2str(double value, int width, int prec, char *buf, size_t len)
 {
 	snprintf(buf, len, "%'*.*f", width, value == 0.0f ? 0 : prec, value);
 
@@ -147,22 +149,24 @@ char *float2str(double value, int width, int prec, char *buf, size_t len)
 static void put_line(const char *fmt, ...)
 {
 	va_list args;
-	char buf[2048];
-	int x, y;
+	char *buf;
+	int len;
+	int x, y __unused__;
 
-	memset(buf, 0, sizeof(buf));
 	getyx(stdscr, y, x);
 
+	len = cols - x;
+	buf = xcalloc(len+1, 1);
+
 	va_start(args, fmt);
-	vsnprintf(buf, sizeof(buf), fmt, args);
+	vsnprintf(buf, len+1, fmt, args);
 	va_end(args);
 
-	if (strlen(buf) > cols-x)
-		buf[cols - x] = '\0';
-	else
-		memset(&buf[strlen(buf)], ' ', cols - strlen(buf)-x);
+	if (strlen(buf) < len)
+		memset(&buf[strlen(buf)], ' ', len - strlen(buf));
 
 	addstr(buf);
+	xfree(buf);
 }
 
 static void center_text(const char *fmt, ...)
@@ -241,10 +245,10 @@ static void draw_attr_detail(struct element *e, struct attr *a, void *arg)
 	int rxprec, txprec, ncol;
 	struct detail_arg *da = arg;
 
-	double rx = unit_value2str(a->a_rx_rate.r_total,
+	double rx = unit_value2str(rate_get_total(&a->a_rx_rate),
 				   a->a_def->ad_unit,
 				   &rx_u, &rxprec);
-	double tx = unit_value2str(a->a_tx_rate.r_total,
+	double tx = unit_value2str(rate_get_total(&a->a_tx_rate),
 				   a->a_def->ad_unit,
 				   &tx_u, &txprec);
 
@@ -258,7 +262,7 @@ static void draw_attr_detail(struct element *e, struct attr *a, void *arg)
 	if (ncol > 0)
 		addch(ACS_VLINE);
 
-	put_line(" %-14.14s %8s%-3s %8s%-3s\n",
+	put_line(" %-14.14s %8s%-3s %8s%-3s",
 		 a->a_def->ad_description,
 		 (a->a_flags & ATTR_RX_ENABLED) ?
 		 float2str(rx, 8, rxprec, buf1, sizeof(buf1)) : "-", rx_u,
@@ -392,6 +396,7 @@ static void draw_help(void)
 	mvaddnstr(y+15, x+3, "H             Start recording history data", -1);
 	mvaddnstr(y+16, x+3, "TAB           Switch time unit of graph", -1);
 	mvaddnstr(y+17, x+3, "<, >          Change number of graphs", -1);
+	mvaddnstr(y+18, x+3, "r             Reset counter of element", -1);
 
 	attroff(A_STANDOUT);
 
@@ -419,6 +424,7 @@ static void draw_header(void)
 	move(row, COLS - strlen(PACKAGE_STRING) - 1);
 	put_line("%s", PACKAGE_STRING);
 	move(row, 0);
+	apply_layout(LAYOUT_LIST);
 }
 
 static int lines_required_for_statusbar(void)
@@ -430,7 +436,7 @@ static void draw_statusbar(void)
 {
 	static const char *help_text = "Press ? for help";
 	char s[27];
-	time_t t = time(0);
+	time_t t = time(NULL);
 
 	apply_layout(LAYOUT_STATUSBAR);
 
@@ -631,6 +637,7 @@ static void draw_element(struct element_group *g, struct element *e,
 
 static void draw_group(struct element_group *g, void *arg)
 {
+	apply_layout(LAYOUT_HEADER);
 	int *line = arg;
 
 	if (line_visible(*line)) {
@@ -683,7 +690,7 @@ static void draw_graph_centered(struct graph *g, int row, int ncol,
 
 static void draw_table(struct graph *g, struct graph_table *tbl,
 		       struct attr *a, struct history *h,
-		       const char *hdr, int ncol)
+		       const char *hdr, int ncol, int layout)
 {
 	int i, save_row;
 	char buf[32];
@@ -708,11 +715,14 @@ static void draw_table(struct graph *g, struct graph_table *tbl,
 	//move(row, ncol + g->g_cfg.gc_width - 3);
 	//put_line("[err %.2f%%]", rtiming.rt_variance.v_error);
 
+    memset(buf, 0, strlen(buf));
 	for (i = (g->g_cfg.gc_height - 1); i >= 0; i--) {
 		move(++row, ncol);
-		put_line("%'8.2f %s",
-			tbl->gt_scale[i],
-			tbl->gt_table + (i * graph_row_size(&g->g_cfg)));
+        sprintf(buf, "%'8.2f ", tbl->gt_scale[i]);
+        addstr(buf);
+        apply_layout(layout);
+        put_line("%s", tbl->gt_table + (i * graph_row_size(&g->g_cfg)));
+        apply_layout(LAYOUT_LIST);
 	}
 
 	move(++row, ncol);
@@ -746,14 +756,14 @@ static void draw_history_graph(struct attr *a, struct history *h)
 	graph_refill(g, h);
 
 	save_row = row;
-	draw_table(g, &g->g_rx, a, h, "RX", ncol);
+	draw_table(g, &g->g_rx, a, h, "RX", ncol, LAYOUT_RX_GRAPH);
 
 	if (graph_display == GRAPH_DISPLAY_SIDE_BY_SIDE) {
 		ncol = cols / 2;
 		row = save_row;
 	}
 
-	draw_table(g, &g->g_tx, a, h, "TX", ncol);
+	draw_table(g, &g->g_tx, a, h, "TX", ncol, LAYOUT_TX_GRAPH);
 
 	graph_free(g);
 }
@@ -973,8 +983,10 @@ draw:
 	 */
 	NEXT_ROW();
 	hline(ACS_HLINE, cols);
-	mvaddch(row, LIST_COL_1, ACS_BTEE);
-	mvaddch(row, LIST_COL_2, ACS_BTEE);
+	if (c_show_list) {
+		mvaddch(row, LIST_COL_1, ACS_BTEE);
+		mvaddch(row, LIST_COL_2, ACS_BTEE);
+	}
 
 	if (!c_show_graph)
 		center_text(" Press %c to enable graphical statistics ",
@@ -1015,6 +1027,12 @@ draw:
 	 */
 	NEXT_ROW();
 	hline(ACS_HLINE, cols);
+
+	if (c_show_details) {
+		int i;
+		for (i = 1; i < detail_cols; i++)
+			mvaddch(row, (i * DETAILS_COLS) - 1, ACS_BTEE);
+	}
 
 	if (!c_show_info)
 		center_text(" Press %c to enable additional information ",
@@ -1077,6 +1095,16 @@ static void curses_draw(void)
 out:
 	attrset(0);
 	refresh();
+}
+
+static void __reset_attr_counter(struct element *e, struct attr *a, void *arg)
+{
+	attr_reset_counter(a);
+}
+
+static void reset_counters(void)
+{
+	element_foreach_attr(current_element, __reset_attr_counter, NULL);
 }
 
 static int handle_input(int ch)
@@ -1160,10 +1188,12 @@ static int handle_input(int ch)
 			return 1;
 
 		case KEY_DOWN:
+		case KEY_CTRL_N:
 			element_select_next();
 			return 1;
 
 		case KEY_UP:
+		case KEY_CTRL_P:
 			element_select_prev();
 			return 1;
 
@@ -1197,6 +1227,10 @@ static int handle_input(int ch)
 
 		case '\t':
 			history_select_next();
+			return 1;
+
+		case 'r':
+			reset_counters();
 			return 1;
 	}
 
@@ -1232,7 +1266,7 @@ static void print_module_help(void)
 	"  Author: Thomas Graf <tgraf@suug.ch>\n" \
 	"\n" \
 	"  Options:\n" \
-	"    fgchar=CHAR    Foreground character (default: '*')\n" \
+	"    fgchar=CHAR    Foreground character (default: '|')\n" \
 	"    bgchar=CHAR    Background character (default: '.')\n" \
 	"    nchar=CHAR     Noise character (default: ':')\n" \
 	"    uchar=CHAR     Unknown character (default: '?')\n" \
@@ -1242,6 +1276,7 @@ static void print_module_help(void)
 	"    nocolors       Do not use colors\n" \
 	"    graph          Show graphical stats by default\n" \
 	"    details        Show detailed stats by default\n" \
+	"    info           Show additional info screen by default\n" \
 	"    minlist=INT    Minimum item list length\n");
 }
 
@@ -1264,6 +1299,8 @@ static void curses_parse_opt(const char *type, const char *value)
 		c_show_graph = !!c_ngraph;
 	} else if (!strcasecmp(type, "details"))
 		c_show_details = 1;
+	else if (!strcasecmp(type, "info"))
+		c_show_info = 1;
 	else if (!strcasecmp(type, "nocolors"))
 		c_use_colors = 0;
 	else if (!strcasecmp(type, "minlist") && value)

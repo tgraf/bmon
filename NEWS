@@ -1,12 +1,46 @@
+HEAD
+
+v4.0 - Dec 13, 2016
+ * Use monotonic clock instead of realtime clock
+ * Pick default selected interface based on policy
+ * Collect RX NoHandler statistics if available (Linux)
+ * CentOS installation instructions
+ * Proper stdout flush in ASCII mode
+ * Bugfixes
+
+v3.9 - Jul 19, 2016
+ * Color support
+ * Add ability to reset statistics from curses UI
+ * NetBSD compile fix
+ * Option to enable info display by default
+ * Additional IPv6 statistics
+ * Various fixes
+
+v3.8 - July 25, 2015
+ * Don't disable Netlink if TC stats are unavailable
+
+v3.7 - November 22, 2014
+ * Bugfixes
+ * Documentation updates
+ * Provide minimal interface information on BSD
+ 
+v3.6 - November 22, 2014
+ * Build fix for uclinux
+ * Fix LICENSE links
+
+v3.5 - August 30, 2014
+ * Fixes for all defects identified by coverity
+ * Fix accuracy issue on total rate calculation
+ * Travis-CI support
+ * Various other small bugfixes
+
 v3.4 - August 24, 2014
-----------------------
  * Bugfixes
    * blank screen with config file
    * quick-help toggle with '?' in curses
  * Better bmon.conf example
 
 v3.3 - July 6, 2014
--------------------
  * MacOS X port
  * Only initialize curses module if actually used
  * Assorted bug and spelling fixes

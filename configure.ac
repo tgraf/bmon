@@ -1,7 +1,7 @@
 #
 # configure.in      Configure Script
 #
-# Copyright (c) 2001-2013 Thomas Graf <tgraf@suug.ch>
+# Copyright (c) 2001-2016 Thomas Graf <tgraf@suug.ch>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a
 # copy of this software and associated documentation files (the "Software"),
@@ -21,7 +21,7 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 # DEALINGS IN THE SOFTWARE.
 
-AC_INIT(bmon, 3.4, [], [], [http://www.infradead.org/~tgr/bmon/])
+AC_INIT(bmon, 4.0, [], [], [https://github.com/tgraf/bmon])
 AC_CONFIG_HEADERS(include/bmon/defs.h)
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_MACRO_DIR([m4])
@@ -58,9 +58,17 @@ AC_CHECK_HEADERS(sys/param.h sys/socket.h)
 
 AC_CHECK_TYPES(suseconds_t)
 
-AC_CHECK_FUNCS(atexit gettimeofday memset pow socket strcasecmp)
+AC_CHECK_FUNCS(atexit clock_gettime memset pow socket strcasecmp)
 AC_CHECK_FUNCS(strchr strdup strerror strncasecmp strstr strtol)
 AC_CHECK_FUNCS(uname getdate)
+
+AC_PATH_PROG([PKG_CONFIG], [pkg-config], [no])
+AS_IF([test "x$PKG_CONFIG" = "xno"],[
+   AC_MSG_ERROR([
+      *** The pkg-config script could not be found. Make sure it is
+      *** in your path, or set the PKG_CONFIG environment variable
+      *** to the full path to pkg-config.])
+   ])
 
 AX_WITH_CURSES
 if test "x$ax_cv_curses" != xyes || test "x$ax_cv_curses_color" != xyes; then
@@ -70,13 +78,16 @@ fi
 PKG_CHECK_MODULES([CONFUSE], [libconfuse], [], AC_MSG_ERROR([requires libconfuse]))
 
 case ${target_os} in
-    linux*)
+    linux*|uclinux*)
         PKG_CHECK_MODULES([LIBNL], [libnl-3.0], [], AC_MSG_ERROR([requires libnl3-dev]))
         PKG_CHECK_MODULES([LIBNL_ROUTE], [libnl-route-3.0], [], AC_MSG_ERROR([requires libnl3-route]))
     ;;
 esac
 
 AC_CHECK_LIB(m, pow, [], AC_MSG_ERROR([requires libm]))
+
+# Don't fail if not found (for instance, OS X does not have clock_gettime)
+AC_CHECK_LIB(rt, clock_gettime, [], [])
 
 BMON_LIB=""
 
@@ -164,7 +175,7 @@ case ${target_os} in
 	AC_DEFINE_UNQUOTED(SYS_SUNOS, "1", [operating system])
     ;;
 
-    *bsd*)
+    *bsd*|dragonfly*)
 	AC_DEFINE_UNQUOTED(SYS_BSD, "1", [operating system])
     ;;
 

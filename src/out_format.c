@@ -119,24 +119,22 @@ static char *get_token(struct element_group *g, struct element *e,
 			goto out;
 		}
 
-		if (!(a = attr_lookup(e, def->ad_id))) {
-			fprintf(stderr, "Unable to find attribute %u (%s)\n",
-				def->ad_id, name);
+		if (!(a = attr_lookup(e, def->ad_id)))
 			goto out;
-		}
 
 		if (!strncasecmp(type, "rx:", 3)) {
-			snprintf(buf, len, "%" PRIu64, a->a_rx_rate.r_total);
+			snprintf(buf, len, "%" PRIu64, rate_get_total(&a->a_rx_rate));
 			return buf;
 		} else if (!strncasecmp(type, "tx:", 3)) {
-			snprintf(buf, len, "%" PRIu64, a->a_tx_rate.r_total);
+			snprintf(buf, len, "%" PRIu64, rate_get_total(&a->a_tx_rate));
 			return buf;
 		} else if (!strncasecmp(type, "rxrate:", 7)) {
 			snprintf(buf, len, "%.2f", a->a_rx_rate.r_rate);
 			return buf;
-		} else if (!strncasecmp(token+5, "txrate:", 7))
+		} else if (!strncasecmp(type, "txrate:", 7)) {
 			snprintf(buf, len, "%.2f", a->a_tx_rate.r_rate);
 			return buf;
+		}
 	}
 
 	fprintf(stderr, "Unknown field \"%s\"\n", token);
@@ -168,6 +166,7 @@ static void draw_element(struct element_group *g, struct element *e, void *arg)
 static void format_draw(void)
 {
 	group_foreach_recursive(draw_element, NULL);
+	fflush(stdout);
 
 	if (c_quit_after > 0)
 		if (--c_quit_after == 0)
@@ -189,8 +188,8 @@ static inline void add_token(int type, char *data)
 		if (out_tokens == NULL)
 			quit("Cannot reallocate out token array\n");
 	}
-		
-		
+
+
 	out_tokens[token_index].ot_type = type;
 	out_tokens[token_index].ot_str = data;
 	token_index++;
@@ -250,7 +249,7 @@ static int format_probe(void)
 			}
 
 			goto out;
-		
+
 finish_escape:
 			*p = '\0';
 			add_token(OT_STRING, s);
@@ -259,7 +258,7 @@ finish_escape:
 			continue;
 		}
 
-out:	
+out:
 		if (new_one) {
 			add_token(OT_STRING, p);
 			new_one = 0;
@@ -322,15 +321,15 @@ static void print_help(void)
 	"  Supported Escape Sequences: \\n, \\t, \\r, \\v, \\b, \\f, \\a\n" \
 	"\n" \
 	"  Examples:\n" \
-	"    \"$(element:name)\\t$(attr:rx:bytes)\\t$(attr:tx:bytes)\\n\"\n" \
+	"    '$(element:name)\\t$(attr:rx:bytes)\\t$(attr:tx:bytes)\\n'\n" \
 	"    lo      12074   12074\n" \
 	"\n" \
-	"    \"$(element:name) $(attr:rxrate:packets) $(attr:txrate:packets)\\n\"\n" \
+	"    '$(element:name) $(attr:rxrate:packets) $(attr:txrate:packets)\\n'\n" \
 	"    eth0 33 5\n" \
 	"\n" \
-	"    \"Element: $(element:name)\\nBytes Rate: \" \\\n" \
-	"        \"$(attr:rxrate:bytes)/$(attr:txrate:bytes)\\nPackets Rate: \" \\\n" \
-	"        \"$(attr:rxrate:packets)/$(attr:txrate:packets)\\n\"\n" \
+	"    'Item: $(element:name)\\nBytes Rate: $(attr:rxrate:bytes)/" \
+	"$(attr:txrate:bytes)\\nPackets Rate: $(attr:rxrate:packets)/" \
+	"$(attr:txrate:packets)\\n'\n" \
 	"    Item: eth0\n" \
 	"    Bytes Rate: 49130/2119\n" \
 	"    Packets Rate: 40/11\n" \

@@ -89,7 +89,11 @@ static void dummy_read(void)
 		char gname[32];
 		struct element_group *group;
 
-		snprintf(gname, sizeof(gname), "group%02d", gidx);
+		if (gidx == 0)
+			snprintf(gname, sizeof(gname), "%s", DEFAULT_GROUP);
+		else
+			snprintf(gname, sizeof(gname), "group%02d", gidx);
+
 		group = group_lookup(gname, GROUP_CREATE);
 
 		for (n = 0; n < c_numdev; n++) {
@@ -185,7 +189,7 @@ static void dummy_parse_opt(const char *type, const char *value)
 		c_numdev = strtol(value, NULL, 0);
 	else if (!strcasecmp(type, "randomize")) {
 		c_randomize = 1;
-		srand(time(0));
+		srand(time(NULL));
 	} else if (!strcasecmp(type, "seed") && value)
 		srand(strtol(value, NULL, 0));
 	else if (!strcasecmp(type, "mtu") && value)

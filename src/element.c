@@ -113,8 +113,9 @@ void element_parse_policy(const char *policy)
 	xfree(copy);
 }
 
-struct element *__lookup_element(struct element_group *group, const char *name,
-				 uint32_t id, struct element *parent)
+static struct element *__lookup_element(struct element_group *group,
+					const char *name, uint32_t id,
+					struct element *parent)
 {
 	struct list_head *list;
 	struct element *e;
@@ -200,12 +201,6 @@ void element_free(struct element *e)
 	struct attr *a, *an;
 	int i;
 
-	if (e->e_group->g_current == e) {
-		element_select_prev();
-		if (e->e_group->g_current == e)
-			e->e_group->g_current = NULL;
-	}
-
 	list_for_each_entry_safe(c, cnext, &e->e_childs, e_list)
 		element_free(c);
 
@@ -219,6 +214,12 @@ void element_free(struct element *e)
 	for (i = 0; i < ATTR_HASH_SIZE; i++)
 		list_for_each_entry_safe(a, an, &e->e_attrhash[i], a_list)
 			attr_free(a);
+
+	if (e->e_group->g_current == e) {
+		element_select_prev();
+		if (e->e_group->g_current == e)
+			e->e_group->g_current = NULL;
+	}
 
 	list_del(&e->e_list);
 	e->e_group->g_nelements--;
@@ -357,6 +358,26 @@ int element_set_usage_attr(struct element *e, const char *usage)
 	return 0;
 }
 
+void element_pick_from_policy(struct element_group *g)
+{
+	if (!list_empty(&allowed)) {
+		struct policy *p;
+
+		list_for_each_entry(p, &allowed, p_list) {
+			struct element *e;
+
+			list_for_each_entry(e, &g->g_elements, e_list) {
+				if (match_mask(p, e->e_name)) {
+					g->g_current = e;
+					return;
+				}
+			}
+		}
+	}
+
+	element_select_first();
+}
+
 struct element *element_current(void)
 {
 	struct element_group *g;
@@ -364,8 +385,12 @@ struct element *element_current(void)
 	if (!(g = group_current()))
 		return NULL;
 
+	/*
+	 * If no element is picked yet, pick a default interface according to
+	 * the selection policy.
+	 */
 	if (!g->g_current)
-		element_select_first();
+		element_pick_from_policy(g);
 
 	return g->g_current;
 }
