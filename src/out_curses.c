@@ -1189,11 +1189,13 @@ static int handle_input(int ch)
 
 		case KEY_DOWN:
 		case KEY_CTRL_N:
+		case 'j':
 			element_select_next();
 			return 1;
 
 		case KEY_UP:
 		case KEY_CTRL_P:
+		case 'k':
 			element_select_prev();
 			return 1;
 
